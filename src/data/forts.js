@@ -1,0 +1,81 @@
+export const forts = [
+  {
+    id: 'rajgad', name: 'Rajgad', cluster: 'Pune', elevation: 1_376, aboutKey: 'fortAboutRajgad', coordinates: [18.2466, 73.6822], baseCoordinates: [18.2298, 73.6748],
+    baseVillage: 'Gunjawane', parkingCapacity: 420, baseJamMinutes: 38, baseVolume: 5_200,
+    chokeCapacity: 11, chokeName: 'Chor Darwaza steps', wasteCapacity: 520,
+    alternative: 'Torna', alternativeCoordinates: [18.276, 73.622],
+    road: 'Gunjawane approach road', anatomy: ['chorDarwaza', 'padmavatiMachi', 'basaltRamparts'],
+  },
+  {
+    id: 'sinhagad', name: 'Sinhagad', cluster: 'Pune', elevation: 1_312, aboutKey: 'fortAboutSinhagad', coordinates: [18.3663, 73.7559], baseCoordinates: [18.3607, 73.8153],
+    baseVillage: 'Donje', parkingCapacity: 560, baseJamMinutes: 52, baseVolume: 7_400,
+    chokeCapacity: 16, chokeName: 'Pune Darwaza traverse', wasteCapacity: 680,
+    alternative: 'Torna', alternativeCoordinates: [18.276, 73.622],
+    road: 'Donje ghat road', anatomy: ['puneDarwaza', 'kalyanDarwaza', 'stoneBastions'],
+  },
+  {
+    id: 'torna', name: 'Torna', cluster: 'Pune', elevation: 1_403, aboutKey: 'fortAboutTorna', coordinates: [18.276, 73.622], baseCoordinates: [18.154, 73.622],
+    baseVillage: 'Velhe', parkingCapacity: 210, baseJamMinutes: 24, baseVolume: 2_500,
+    chokeCapacity: 9, chokeName: 'Bini Darwaza traverse', wasteCapacity: 260,
+    alternative: 'Rajgad', alternativeCoordinates: [18.2466, 73.6822],
+    road: 'Velhe approach road', anatomy: ['biniDarwaza', 'zunjarMachi', 'mengaraiPlateau'],
+  },
+  {
+    id: 'visapur', name: 'Visapur', cluster: 'Lonavala / MMR', elevation: 1_084, aboutKey: 'fortAboutVisapur', coordinates: [18.7195, 73.4881], baseCoordinates: [18.696, 73.473],
+    baseVillage: 'Malavli', parkingCapacity: 300, baseJamMinutes: 35, baseVolume: 3_900,
+    chokeCapacity: 12, chokeName: 'Waterfall rock-step section', wasteCapacity: 380,
+    alternative: 'Korigad', alternativeCoordinates: [18.6282, 73.3862],
+    road: 'Malavli village approach', anatomy: ['waterfallSteps', 'waterCisterns', 'fortifiedPlateau'],
+  },
+  {
+    id: 'korigad', name: 'Korigad', cluster: 'Lonavala / MMR', elevation: 923, aboutKey: 'fortAboutKorigad', coordinates: [18.6282, 73.3862], baseCoordinates: [18.639, 73.38],
+    baseVillage: 'Peth Shahpur', parkingCapacity: 230, baseJamMinutes: 18, baseVolume: 1_800,
+    chokeCapacity: 14, chokeName: 'Main gate approach', wasteCapacity: 240,
+    alternative: 'Visapur', alternativeCoordinates: [18.7195, 73.4881],
+    road: 'Peth Shahpur approach', anatomy: ['historicGates', 'continuousRamparts', 'templePlateau'],
+  },
+  {
+    id: 'harihar', name: 'Harihar', cluster: 'Nashik', elevation: 1_120, aboutKey: 'fortAboutHarihar', coordinates: [19.9024, 73.4533], baseCoordinates: [19.896, 73.437],
+    baseVillage: 'Nirgudpada', parkingCapacity: 180, baseJamMinutes: 28, baseVolume: 2_800,
+    chokeCapacity: 8, chokeName: 'Vertical rock-cut steps', wasteCapacity: 230,
+    alternative: 'Tringalwadi', alternativeCoordinates: [19.7378, 73.5321],
+    road: 'Nirgudpada village approach', anatomy: ['verticalStaircase', 'narrowSummitRidge', 'fortifiedSummit'],
+  },
+  {
+    id: 'tringalwadi', name: 'Tringalwadi', cluster: 'Nashik', elevation: 914, aboutKey: 'fortAboutTringalwadi', coordinates: [19.7378, 73.5321], baseCoordinates: [19.731, 73.53],
+    baseVillage: 'Tringalwadi', parkingCapacity: 180, baseJamMinutes: 15, baseVolume: 900,
+    chokeCapacity: 14, chokeName: 'Fort entrance steps', wasteCapacity: 180,
+    alternative: 'Harihar', alternativeCoordinates: [19.9024, 73.4533],
+    road: 'Tringalwadi village approach', anatomy: ['rockCutEntrance', 'lakeApproach', 'summitPlateau'],
+  },
+];
+
+export const verifiedLandmarks = {
+  rajgad: { type: 'fort', name: 'Rajgad' },
+  'राजगड': { type: 'fort', name: 'Rajgad' },
+  'राजगढ़': { type: 'fort', name: 'Rajgad' },
+  torna: { type: 'fort', name: 'Torna' },
+  'तोरणा': { type: 'fort', name: 'Torna' },
+  sinhagad: { type: 'fort', name: 'Sinhagad' },
+  'सिंहगड': { type: 'fort', name: 'Sinhagad' },
+  'सिंहगढ़': { type: 'fort', name: 'Sinhagad' },
+  visapur: { type: 'fort', name: 'Visapur' },
+  'विसापूर': { type: 'fort', name: 'Visapur' },
+  korigad: { type: 'fort', name: 'Korigad' },
+  'कोरीगड': { type: 'fort', name: 'Korigad' },
+  harihar: { type: 'fort', name: 'Harihar' },
+  'हरिहर': { type: 'fort', name: 'Harihar' },
+  kalsubai: { type: 'peak', name: 'Kalsubai' },
+  'कळसूबाई': { type: 'peak', name: 'Kalsubai' },
+  'कलसुबाई': { type: 'peak', name: 'Kalsubai' },
+  "duke's nose": { type: 'peak', name: "Duke's Nose" },
+  'ड्यूक्स नोज': { type: 'peak', name: "Duke's Nose" },
+};
+
+export const structuralFeatures = [
+  { id: 'cistern', points: 20, key: 'featureCistern' },
+  { id: 'bastion', points: 25, key: 'featureBastion' },
+  { id: 'gateway', points: 15, key: 'featureGateway' },
+  { id: 'machi', points: 10, key: 'featureMachi' },
+  { id: 'rampart', points: 10, key: 'featureRampart' },
+];
