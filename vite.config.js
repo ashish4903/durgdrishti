@@ -50,6 +50,6 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react(), localIdentifyEndpoint()],
-    base: './',
+    base: process.env.GITHUB_ACTIONS === 'true' ? '/durgdrishti/' : './',
   };
 });

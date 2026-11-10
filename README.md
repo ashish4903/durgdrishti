@@ -29,8 +29,9 @@ The client bundle is written to `dist/`. No database or user authentication is n
 
 ## Deployment
 
+- **GitHub Pages:** every push to `main` builds and publishes the static app through `.github/workflows/deploy-pages.yml`. In the repository's Settings → Pages, set the build and deployment source to **GitHub Actions**. The app will be available at `https://mrajat31.github.io/durgdrishti/`. GitHub Pages does not run `api/identify.js`, so photo analysis requires a serverless host such as Vercel; the rest of the app remains available.
 - **Vercel (recommended for AI):** import the repository and add `OPENAI_API_KEY` under Project Settings → Environment Variables. Vercel serves `api/identify.js` as a serverless function alongside the Vite site. The API key must be configured as a secret; do not put it in `VITE_*` variables.
-- **Netlify / GitHub Pages:** the static atlas and forecasting UI can be published from `dist`, but `/api/identify` will not exist there. Add a serverless-function adapter before enabling photo analysis on those hosts.
+- **Netlify:** the static atlas and forecasting UI can be published from `dist`, but `/api/identify` will not exist without a serverless-function adapter.
 
 ## AI photo identification
 
