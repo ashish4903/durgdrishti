@@ -1,12 +1,48 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
 import FortAtlas from './components/FortAtlas.jsx';
 import FortFinder from './components/FortFinder.jsx';
+import FortDashboard from './components/FortDashboard.jsx';
+import RecommendedForts from './components/RecommendedForts.jsx';
+import VisitorProfileForm from './components/VisitorProfileForm.jsx';
 import { forts } from './data/forts.js';
 import { translations } from './data/translations.js';
 import { calculateLocationForecast, slotMultipliers } from './data/forecast.js';
-import { mappedTrailLocations } from './data/fortCatalogue.js';
+import { fortCatalogue, mappedTrailLocations } from './data/fortCatalogue.js';
+import { createContributionUrl, getFortCoverage } from './data/fortDiscovery.js';
 
 const LandmarkToolkit = lazy(() => import('./components/LandmarkToolkit.jsx'));
+const visitorProfileKey = 'durgdrishti-visitor-profile-v1';
+const profileDismissedKey = 'durgdrishti-profile-setup-dismissed-v1';
+const validProfileInterests = new Set(['history', 'architecture', 'openLandscape', 'waterfalls', 'challenging', 'quieter', 'flowers', 'photography']);
+const validAgeRanges = new Set(['under18', '18to24', '25to34', '35to44', '45to54', '55plus']);
+
+function readVisitorProfile() {
+  try {
+    const stored = localStorage.getItem(visitorProfileKey);
+    if (!stored) return null;
+    const value = JSON.parse(stored);
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+    return {
+      name: typeof value.name === 'string' ? value.name.slice(0, 60) : '',
+      ageRange: validAgeRanges.has(value.ageRange) ? value.ageRange : '',
+      trekCount: Number.isInteger(value.trekCount) ? Math.min(500, Math.max(0, value.trekCount)) : '',
+      visitedForts: typeof value.visitedForts === 'string' ? value.visitedForts.slice(0, 240) : '',
+      interests: Array.isArray(value.interests) ? [...new Set(value.interests.filter((interest) => validProfileInterests.has(interest)))] : [],
+    };
+  } catch (error) {
+    console.error('Could not read the locally saved visitor profile.', error);
+    return null;
+  }
+}
+
+function shouldShowProfileSetup() {
+  try {
+    return !readVisitorProfile() && !localStorage.getItem(profileDismissedKey);
+  } catch (error) {
+    console.error('Could not read visitor profile setup preference.', error);
+    return true;
+  }
+}
 
 function Icon({ name, size = 20 }) {
   const common = { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.7, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true };
@@ -26,13 +62,78 @@ function Icon({ name, size = 20 }) {
 
 function App() {
   const [language, setLanguage] = useState('en');
-  const [activeTab, setActiveTab] = useState('plan');
+  const [page, setPage] = useState('home');
+  const [visitorProfile, setVisitorProfile] = useState(readVisitorProfile);
+  const [profileSetupOpen, setProfileSetupOpen] = useState(shouldShowProfileSetup);
+  const [profileStorageWarning, setProfileStorageWarning] = useState(false);
+  const [selectedCatalogueId, setSelectedCatalogueId] = useState(
+    () => fortCatalogue.find((place) => place.forecastId === 'rajgad')?.id ?? fortCatalogue[0]?.id,
+  );
   const [fortId, setFortId] = useState('rajgad');
   const [mappedLocationId, setMappedLocationId] = useState(null);
   const [slot, setSlot] = useState('alpine');
   const [surge, setSurge] = useState(false);
   const [pledged, setPledged] = useState(false);
   const copy = translations[language];
+  const saveVisitorProfile = (profile) => {
+    setVisitorProfile(profile);
+    setProfileSetupOpen(false);
+    try {
+      localStorage.setItem(visitorProfileKey, JSON.stringify(profile));
+      localStorage.setItem(profileDismissedKey, 'true');
+      setProfileStorageWarning(false);
+    } catch (error) {
+      console.error('Could not save visitor preferences in browser storage.', error);
+      setProfileStorageWarning(true);
+    }
+  };
+  const dismissProfileSetup = () => {
+    setProfileSetupOpen(false);
+    try {
+      localStorage.setItem(profileDismissedKey, 'true');
+    } catch (error) {
+      console.error('Could not save the visitor profile setup preference.', error);
+      setProfileStorageWarning(true);
+    }
+  };
+  const clearVisitorProfile = () => {
+    setVisitorProfile(null);
+    setProfileSetupOpen(false);
+    try {
+      localStorage.removeItem(visitorProfileKey);
+      localStorage.setItem(profileDismissedKey, 'true');
+      setProfileStorageWarning(false);
+    } catch (error) {
+      console.error('Could not clear the locally saved visitor profile.', error);
+      setProfileStorageWarning(true);
+    }
+  };
+  const selectedCataloguePlace = fortCatalogue.find((place) => place.id === selectedCatalogueId);
+  const activeMappedLocation = mappedTrailLocations.find((location) => location.id === mappedLocationId);
+  const normalizeName = (name) => name.toLocaleLowerCase().replace(/[^a-z0-9]+/g, '');
+  const mappedInsightLocation = activeMappedLocation ?? (selectedCataloguePlace
+    ? mappedTrailLocations.find((location) => (
+      location.feature?.names.some((name) => normalizeName(name) === normalizeName(selectedCataloguePlace.name))
+      || normalizeName(location.name ?? '') === normalizeName(selectedCataloguePlace.name)
+    ))
+    : null);
+  const insightLocation = selectedCataloguePlace || mappedInsightLocation
+    ? {
+      ...mappedInsightLocation,
+      ...selectedCataloguePlace,
+      id: mappedInsightLocation?.id ?? selectedCataloguePlace?.id,
+      name: selectedCataloguePlace?.name ?? mappedInsightLocation?.name,
+      coordinates: selectedCataloguePlace?.coordinates ?? mappedInsightLocation?.coordinates,
+      feature: mappedInsightLocation?.feature,
+    }
+    : mappedInsightLocation;
+  const insightCoverage = insightLocation ? getFortCoverage(insightLocation) : null;
+  const contributionGaps = insightCoverage ? [
+    !insightCoverage.hasCoordinates && copy.contributionMissingCoordinates,
+    !insightCoverage.hasFortNotes && copy.contributionMissingNotes,
+    !insightCoverage.hasCrowdBenchmark && copy.contributionMissingCrowd,
+    !insightCoverage.hasDistrict && copy.contributionMissingDistrict,
+  ].filter(Boolean) : [];
   const formatMessage = (message, values) => Object.entries(values).reduce(
     (text, [key, value]) => text.replaceAll(`{${key}}`, String(value)),
     message,
@@ -83,18 +184,29 @@ function App() {
   };
   const openMappedLocation = (id) => {
     setMappedLocationId(id);
-    setActiveTab('plan');
-    window.requestAnimationFrame(() => {
-      document.getElementById('fort-briefing')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
+    const mapped = mappedTrailLocations.find((location) => location.id === id);
+    const place = mapped && fortCatalogue.find((entry) => (
+      mapped.feature?.names.some((name) => normalizeName(name) === normalizeName(entry.name))
+      || (entry.coordinates && Math.abs(entry.coordinates[0] - mapped.coordinates[0]) < 0.0001
+        && Math.abs(entry.coordinates[1] - mapped.coordinates[1]) < 0.0001)
+    ));
+    setSelectedCatalogueId(place?.id ?? null);
+    if (mapped?.forecastId) setFortId(mapped.forecastId);
+    setPage('profile');
   };
-  const openFortProfile = (id) => {
-    setFortId(id);
-    setMappedLocationId(null);
-    setActiveTab('plan');
-    window.requestAnimationFrame(() => {
-      document.getElementById('fort-briefing')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
+  const openFortInsights = (place) => {
+    setSelectedCatalogueId(place.id);
+    if (place.forecastId) {
+      setFortId(place.forecastId);
+      setMappedLocationId(null);
+    } else {
+      const location = mappedTrailLocations.find((item) => (
+        item.feature?.names.some((name) => normalizeName(name) === normalizeName(place.name))
+        || normalizeName(item.name ?? '') === normalizeName(place.name)
+      ));
+      setMappedLocationId(location?.id ?? null);
+    }
+    setPage('profile');
   };
   const placeDirectionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${fort.coordinates[0]},${fort.coordinates[1]}`;
   const wikipediaUrl = fort.feature?.wikipedia
@@ -126,38 +238,117 @@ function App() {
       </header>
 
       <main id="top">
-        <section className="hero">
+        {page === 'home' && <section className="hero home-hero">
           <div className="hero-copy">
             <div className="eyebrow"><span className="eyebrow-line" />{copy.eyebrow}</div>
-            <h1>{copy.title}</h1>
-            <p>{copy.subtitle}</p>
-            <div className="hero-stamp"><Icon name="compass" size={16} /><span>{copy.regionStamp}</span><span className="stamp-divider" /><span>{copy.dayStamp}</span></div>
+            <h1>{copy.homeTitle}</h1>
+            <p>{copy.homeIntro}</p>
+            <div className="hero-stamp"><Icon name="compass" size={16} /><span>{copy.regionStamp}</span><span className="stamp-divider" /><span>{fortCatalogue.length} {copy.indexedForts}</span></div>
           </div>
           <div className="hero-art" aria-hidden="true">
             <div className="contour contour-one" /><div className="contour contour-two" /><div className="contour contour-three" />
             <div className="hero-sun" /><div className="hero-ridge ridge-back" /><div className="hero-ridge ridge-front" />
             <span className="hero-coordinate">SAHYADRI · MH</span>
           </div>
-        </section>
+        </section>}
 
         <nav className="tab-bar" aria-label="Main navigation">
-          <button type="button" className={activeTab === 'plan' ? 'tab active' : 'tab'} onClick={() => setActiveTab('plan')}>
-            <Icon name="map" size={16} />{copy.navExplorer}
-          </button>
-          <button type="button" className={activeTab === 'classify' ? 'tab active' : 'tab'} onClick={() => setActiveTab('classify')}>
-            <Icon name="shield" size={16} />{copy.navClassifier}<span className="tab-new">{copy.classifierTab}</span>
-          </button>
+          <button type="button" className={page === 'home' ? 'tab active' : 'tab'} onClick={() => setPage('home')}><Icon name="mountain" size={16} />{copy.navHome}</button>
+          <button type="button" className={page === 'explore' ? 'tab active' : 'tab'} onClick={() => setPage('explore')}><Icon name="map" size={16} />{copy.navExplorer}</button>
+          <button type="button" className={page === 'chooseInsight' || page === 'profile' ? 'tab active' : 'tab'} onClick={() => setPage('chooseInsight')}><Icon name="compass" size={16} />{copy.navInsights}</button>
+          <button type="button" className={page === 'dashboard' ? 'tab active' : 'tab'} onClick={() => setPage('dashboard')}><Icon name="road" size={16} />{copy.navDashboard}</button>
+          <button type="button" className={page === 'photo' ? 'tab active' : 'tab'} onClick={() => setPage('photo')}><Icon name="shield" size={16} />{copy.navClassifier}</button>
         </nav>
 
-        {activeTab === 'plan' ? (
+        {page === 'home' && (
+          <section className="home-hub">
+            <div className="home-section-heading">
+              <span className="section-kicker">{copy.homeStartKicker}</span>
+              <h2>{copy.homeStartTitle}</h2>
+            </div>
+            <div className="home-action-grid">
+              <button type="button" className="home-action home-action-explore" onClick={() => setPage('explore')}>
+                <span className="home-action-icon"><Icon name="map" size={23} /></span>
+                <span className="home-action-copy"><strong>{copy.homeExploreTitle}</strong><small>{copy.homeExploreBody}</small></span>
+                <Icon name="arrow" size={18} />
+              </button>
+              <button type="button" className="home-action home-action-insights" onClick={() => setPage('chooseInsight')}>
+                <span className="home-action-icon"><Icon name="compass" size={23} /></span>
+                <span className="home-action-copy"><strong>{copy.homeInsightsTitle}</strong><small>{copy.homeInsightsBody}</small></span>
+                <Icon name="arrow" size={18} />
+              </button>
+              <button type="button" className="home-action home-action-photo" onClick={() => setPage('photo')}>
+                <span className="home-action-icon"><Icon name="shield" size={23} /></span>
+                <span className="home-action-copy"><strong>{copy.homePhotoTitle}</strong><small>{copy.homePhotoBody}</small></span>
+                <Icon name="arrow" size={18} />
+              </button>
+            </div>
+            <div className="home-profile-actions">
+              <span>{visitorProfile?.name ? formatMessage(copy.profileGreeting, { name: visitorProfile.name }) : copy.profileSetupIntro}</span>
+              <button type="button" className="profile-edit-button" onClick={() => setProfileSetupOpen(true)}>{visitorProfile ? copy.profileEdit : copy.profileSetupButton}</button>
+            </div>
+            {profileStorageWarning && <p className="profile-storage-warning" role="status">{copy.profileStorageWarning}</p>}
+            <RecommendedForts copy={copy} profile={visitorProfile} onOpenFort={openFortInsights} />
+            <details className="home-about">
+              <summary>{copy.homeAboutTitle}</summary>
+              <p>{copy.homeAboutBody}</p>
+            </details>
+          </section>
+        )}
+
+        {page === 'dashboard' && <FortDashboard copy={copy} language={language} onGetInsights={openFortInsights} />}
+
+        {(page === 'explore' || page === 'chooseInsight') && (
           <>
+            <section className="view-heading">
+              <span className="section-kicker">{copy.eyebrow}</span>
+              <h1>{page === 'explore' ? copy.explorePageTitle : copy.insightsPageTitle}</h1>
+              <p>{page === 'explore' ? copy.explorePageIntro : copy.insightsPageIntro}</p>
+            </section>
             <FortAtlas
               copy={copy}
+              mode={page}
+              profile={visitorProfile}
               selectedFortId={forecastFort?.id ?? fortId}
               selectedLocationId={mappedLocationId}
-              onPlanFort={openFortProfile}
               onPlanLocation={openMappedLocation}
+              onGetInsights={openFortInsights}
             />
+          </>
+        )}
+
+        {page === 'profile' && insightLocation && (
+          <>
+            <section className="profile-heading">
+              <button type="button" className="back-link" onClick={() => setPage('chooseInsight')}>← {copy.backToFortSearch}</button>
+              <span className="section-kicker">{copy.insightsPageTitle}</span>
+              <h1>{insightLocation.name}</h1>
+              <p>{[insightLocation.district, insightLocation.coordinates ? copy.mapLocationAvailable : copy.mapSearchAvailable].filter(Boolean).join(' · ')}</p>
+              <div className="profile-header-actions">
+                <a className="profile-action-primary" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${insightLocation.name}${insightLocation.district ? `, ${insightLocation.district}` : ''}, Maharashtra, India`)}`} target="_blank" rel="noreferrer">{copy.openMap} ↗</a>
+                {insightLocation.feature?.url && <a className="profile-action-secondary" href={insightLocation.feature.url} target="_blank" rel="noreferrer">{copy.openOsmFeature} ↗</a>}
+              </div>
+            </section>
+            <Suspense fallback={<div className="mapped-forecast-panel">{copy.toolkitLoading}</div>}>
+              <LandmarkToolkit location={insightLocation} copy={copy} language={language} />
+            </Suspense>
+            {contributionGaps.length > 0 && (
+              <section className="contribution-card">
+                <div>
+                  <span className="section-kicker">{copy.contributeTitle}</span>
+                  <h2>{insightLocation.name}</h2>
+                  <p>{copy.contributeIntro}</p>
+                  <ul>{contributionGaps.map((gap) => <li key={gap}>{gap}</li>)}</ul>
+                  <small>{copy.contributionSourcePrompt} {copy.contributionPublicNote}</small>
+                </div>
+                <a className="profile-action-primary" href={createContributionUrl(insightLocation)} target="_blank" rel="noreferrer">{copy.contributeAction} ↗</a>
+              </section>
+            )}
+            {!insightLocation.coordinates && <div className="mapped-forecast-panel"><Icon name="compass" size={19} /><span>{copy.noForecastForRecord}</span></div>}
+            {insightLocation.coordinates && (
+              <details className="estimate-details">
+                <summary>{copy.openTrailPressureInsights}</summary>
+                <p className="estimate-details-intro">{copy.trailPressureInsightsIntro}</p>
 
           <div className="workspace" id="fort-briefing">
             <section className="briefing-column">
@@ -352,14 +543,23 @@ function App() {
               )}
             </aside>
           </div>
-          <Suspense fallback={<div className="mapped-forecast-panel">{copy.toolkitLoading}</div>}>
-            <LandmarkToolkit location={fort} copy={copy} language={language} />
-          </Suspense>
+          </details>
+            )}
           </>
-        ) : (
-          <FortFinder copy={copy} />
         )}
+
+        {page === 'photo' && <FortFinder copy={copy} />}
       </main>
+
+      {profileSetupOpen && <VisitorProfileForm
+        key={profileSetupOpen ? 'profile-open' : 'profile-closed'}
+        copy={copy}
+        profile={visitorProfile}
+        onSave={saveVisitorProfile}
+        onDismiss={dismissProfileSetup}
+        onClear={visitorProfile ? clearVisitorProfile : null}
+        storageWarning={profileStorageWarning}
+      />}
 
       <footer className="footer"><a className="footer-brand" href="#top"><span className="brand-mark"><Icon name="mountain" size={17} /></span>{copy.brand}</a><span>{copy.footer}</span><span className="footer-credit">{copy.footerCredit}</span></footer>
     </div>

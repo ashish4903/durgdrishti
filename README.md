@@ -42,3 +42,13 @@ The user is told before analysis that the photo is sent to OpenAI. This site doe
 The Fort Atlas aggregates public indexes, not a complete official Maharashtra fort register. Coordinates are plotted only when available from the source/reference data. Forecasts for the seven benchmarked trails use hand-authored inputs; forecasts for other mapped points are clearly identified as nearest-benchmark proxies, not site-specific measurements.
 
 The Leaflet map's OpenStreetMap raster tiles, AI photo analysis, and outbound map directions require a network connection. Forecast recalculations run locally in the browser.
+
+## Personalized discovery and contributions
+
+On a first visit, people can optionally save a name, age range, completed-trek count, previously visited forts, and trip interests. This profile stays in that browser's local storage; it is not uploaded or attached to a contribution. The age range is not used to rate a route or assess safety. The profile can be skipped, edited, or cleared from the home screen.
+
+Recommendations use the saved interests, de-prioritize previously visited forts, and prioritize the seven forts with coordinates, a fort-specific description, and hand-authored planning inputs. Trek count is shown as context, not a difficulty rating. Interest matching is limited to features supported by those descriptions; interests without reliable fort-specific data are called out rather than guessed. This is a starting point, not a difficulty or safety recommendation.
+
+The dashboard summarizes district labels in the index and compares modelled crowd-pressure estimates for the seven benchmark forts. District totals count index records (not unique, officially verified forts), and hotspot values are not live visitor counts or current trail conditions.
+
+Fort profiles with missing data include a prefilled link to create a public GitHub issue. Contributors should provide reliable source links and avoid personal or sensitive information. There is no in-app contribution backend or private submission channel.

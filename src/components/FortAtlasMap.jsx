@@ -40,7 +40,7 @@ export default function FortAtlasMap({ places, features, selectedId, selectedLoc
 
   return (
     <div className="atlas-map-frame">
-      <MapContainer center={[19.3, 75.1]} zoom={6} scrollWheelZoom className="trail-map atlas-map">
+      <MapContainer center={[19.3, 75.1]} zoom={6} scrollWheelZoom={false} className="trail-map atlas-map" aria-label={copy.atlasTitle}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -75,7 +75,7 @@ export default function FortAtlasMap({ places, features, selectedId, selectedLoc
                 <strong>{feature.name}</strong><br />
                 <a href={`https://www.google.com/maps/search/?api=1&query=${feature.lat},${feature.lon}`} target="_blank" rel="noreferrer">{copy.openMap} ↗</a><br />
                 <a href={feature.url} target="_blank" rel="noreferrer">{copy.openOsmFeature} ↗</a>
-                <br /><button type="button" className="map-compare-button" onClick={() => onPlanLocation(`atlas:${feature.key}`)}>{copy.openTrailBriefing}</button>
+                <br /><button type="button" className="map-compare-button" onClick={() => onPlanLocation(`atlas:${feature.key}`)}>{copy.getInsights}</button>
                 {matchingPlace && <><br /><button type="button" className="map-compare-button" onClick={() => onSelect(matchingPlace.id)}>{copy.openFortRecord}</button></>}
               </Popup>
             </CircleMarker>
@@ -98,7 +98,7 @@ export default function FortAtlasMap({ places, features, selectedId, selectedLoc
               <Popup>
                 <strong>{place.name}</strong><br />
                 <a href={`https://www.google.com/maps/search/?api=1&query=${place.coordinates[0]},${place.coordinates[1]}`} target="_blank" rel="noreferrer">{copy.openMap} ↗</a><br />
-                <button type="button" className="map-compare-button" onClick={() => onPlanLocation(`atlas:${place.id}`)}>{copy.openTrailBriefing}</button><br />
+                <button type="button" className="map-compare-button" onClick={() => onPlanLocation(`atlas:${place.id}`)}>{copy.getInsights}</button><br />
                 <button type="button" className="map-compare-button" onClick={() => onSelect(place.id)}>{copy.openFortRecord}</button>
               </Popup>
             </Marker>
@@ -106,6 +106,7 @@ export default function FortAtlasMap({ places, features, selectedId, selectedLoc
         })}
       </MapContainer>
       <span className="atlas-map-count">{mapPinCount} {copy.mapPinLabel}</span>
+      <span className="atlas-map-help">{copy.atlasMapHelp}</span>
     </div>
   );
 }

@@ -157,7 +157,9 @@ function HistoryCard({ location, copy, language }) {
 
 export default function LandmarkToolkit({ location, copy, language }) {
   const query = encodeURIComponent(`${location.name}, Maharashtra, India`);
-  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${location.coordinates[0]},${location.coordinates[1]}`;
+  const directionsUrl = location.coordinates
+    ? `https://www.google.com/maps/dir/?api=1&destination=${location.coordinates[0]},${location.coordinates[1]}`
+    : `https://www.google.com/maps/search/?api=1&query=${query}`;
   const mapsSearch = (term) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${term} near ${location.name}, Maharashtra`)}`;
   const routeSearch = `https://www.google.com/search?q=${encodeURIComponent(`site:alltrails.com OR site:wikiloc.com hiking trail ${location.name} Maharashtra`)}`;
   const conditionSearch = `https://www.google.com/search?q=${encodeURIComponent(`${location.name} Maharashtra fort access notice permit`)}`;
@@ -183,7 +185,13 @@ export default function LandmarkToolkit({ location, copy, language }) {
         <div className="toolkit-primary">
           <HistoryCard location={location} copy={copy} language={language} />
           <LandmarkPhoto location={location} copy={copy} />
-          <WeatherCard key={location.id} location={location} copy={copy} />
+          {location.coordinates
+            ? <WeatherCard key={location.id} location={location} copy={copy} />
+            : <article className="toolkit-card weather-card">
+              <span className="section-kicker">{copy.liveWeather}</span>
+              <h3>{location.name}</h3>
+              <p>{copy.weatherLocationUnavailable}</p>
+            </article>}
           <article className="toolkit-card">
             <span className="section-kicker">{copy.routePlanning}</span>
             <h3>{copy.planYourApproach}</h3>

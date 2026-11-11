@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import FortAtlasMap from './FortAtlasMap.jsx';
+import RecommendedForts from './RecommendedForts.jsx';
 import {
   fortCatalogue,
   fortCatalogueSource,
@@ -10,7 +11,7 @@ import {
   UNESCOFortSource,
 } from '../data/fortCatalogue.js';
 
-export default function FortAtlas({ copy, onPlanFort, onPlanLocation, selectedFortId, selectedLocationId }) {
+export default function FortAtlas({ copy, mode, profile, onPlanLocation, onGetInsights, selectedFortId, selectedLocationId }) {
   const [query, setQuery] = useState('');
   const [selectedId, setSelectedId] = useState(() => (
     fortCatalogue.find((place) => place.forecastId === selectedFortId)?.id ?? fortCatalogue[0]?.id
@@ -42,11 +43,13 @@ export default function FortAtlas({ copy, onPlanFort, onPlanLocation, selectedFo
   }, [selectedLocationId]);
   const selectPlace = (place) => {
     setSelectedId(place.id);
-    const mappedLocation = mappedLocationForPlace(place);
-    if (place.forecastId) onPlanFort(place.forecastId);
-    else if (mappedLocation) onPlanLocation(mappedLocation.id);
+    onGetInsights(place);
   };
   const selected = fortCatalogue.find((place) => place.id === selectedId);
+  const mapPinCount = fortMapFeatures.length + mappedPlaces.filter((place) => !fortMapFeatures.some((feature) => (
+    feature.names.some((name) => name.toLocaleLowerCase().replace(/[^a-z0-9]+/g, '')
+      === place.name.toLocaleLowerCase().replace(/[^a-z0-9]+/g, ''))
+  ))).length;
   const googleMapsSearch = (place) => {
     const location = [place.name, place.district, 'Maharashtra', 'India'].filter(Boolean).join(', ');
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
@@ -58,11 +61,12 @@ export default function FortAtlas({ copy, onPlanFort, onPlanLocation, selectedFo
 
   return (
     <section className="atlas-workspace">
+      {mode === 'chooseInsight' && <RecommendedForts copy={copy} profile={profile} onOpenFort={onGetInsights} compact />}
       <div className="atlas-heading">
         <div>
-          <span className="section-kicker">04 / {copy.atlasKicker}</span>
-          <h2>{copy.atlasTitle}</h2>
-          <p>{copy.atlasIntro}</p>
+          <span className="section-kicker">{mode === 'chooseInsight' ? copy.insightsPageTitle : copy.atlasKicker}</span>
+          <h2>{mode === 'chooseInsight' ? copy.insightPickerTitle : copy.atlasTitle}</h2>
+          <p>{mode === 'chooseInsight' ? copy.insightPickerIntro : copy.atlasIntro}</p>
         </div>
         <div className="atlas-count">
           <strong>{fortCatalogue.length}</strong>
@@ -70,7 +74,42 @@ export default function FortAtlas({ copy, onPlanFort, onPlanLocation, selectedFo
         </div>
       </div>
 
-      <div className="atlas-map-section">
+      <div className="atlas-browser">
+        <div className="atlas-browser-heading">
+          <div>
+            <span className="section-kicker">{copy.browseForts}</span>
+            <h3>{mode === 'chooseInsight' ? copy.insightPickerTitle : copy.fortIndex}</h3>
+          </div>
+          <span className="atlas-result-count" aria-live="polite">{filteredPlaces.length} / {fortCatalogue.length}</span>
+        </div>
+        <label className="sr-only" htmlFor="fort-search">{copy.searchForts}</label>
+        <input
+          id="fort-search"
+          className="atlas-search"
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder={copy.searchForts}
+        />
+        <div className="atlas-place-list" role="list" aria-label={copy.fortIndex}>
+          {filteredPlaces.map((place) => (
+            <article key={place.id} className={`atlas-place ${selectedId === place.id ? 'atlas-place-selected' : ''}`} role="listitem">
+              <button type="button" className="atlas-place-select" onClick={() => selectPlace(place)}>
+                <span className="atlas-place-name">{place.name}</span>
+                <span className="atlas-place-meta">
+                  {place.coordinates ? copy.mapLocationAvailable : copy.mapSearchAvailable}
+                  {place.district ? ` · ${place.district}` : ''}
+                </span>
+              </button>
+              <button type="button" className="atlas-place-action" onClick={() => selectPlace(place)}>{copy.getInsights}</button>
+            </article>
+          ))}
+          {filteredPlaces.length === 0 && <p className="atlas-empty">{copy.noFortMatches}</p>}
+        </div>
+        {selected && !selected.coordinates && <p className="atlas-selection-note">{copy.noCoordinatesNote}</p>}
+      </div>
+
+      {mode === 'explore' && <div className="atlas-map-section">
         <FortAtlasMap
           places={mappedPlaces}
           features={fortMapFeatures}
@@ -86,44 +125,9 @@ export default function FortAtlas({ copy, onPlanFort, onPlanLocation, selectedFo
           <span><i className="legend-ring" />{copy.bufferLegend}</span>
           <span>{mappedPlaces.length} / {fortCatalogue.length} {copy.withPublishedCoordinates}</span>
         </div>
-      </div>
+      </div>}
 
-      <div className="atlas-browser">
-        <div className="atlas-browser-heading">
-          <div>
-            <span className="section-kicker">05 / {copy.browseForts}</span>
-            <h3>{copy.fortIndex}</h3>
-          </div>
-          <span className="atlas-result-count">{filteredPlaces.length} / {fortCatalogue.length}</span>
-        </div>
-        <label className="sr-only" htmlFor="fort-search">{copy.searchForts}</label>
-        <input
-          id="fort-search"
-          className="atlas-search"
-          type="search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder={copy.searchForts}
-        />
-        <div className="atlas-place-list" role="list">
-          {filteredPlaces.map((place) => (
-            <article key={place.id} className={`atlas-place ${selectedId === place.id ? 'atlas-place-selected' : ''}`} role="listitem">
-              <button type="button" className="atlas-place-select" onClick={() => selectPlace(place)}>
-                <span className="atlas-place-name">{place.name}</span>
-                <span className="atlas-place-meta">
-                  {place.coordinates ? copy.mapLocationAvailable : copy.mapSearchAvailable}
-                  {place.district ? ` · ${place.district}` : ''}
-                </span>
-              </button>
-              {place.forecastId
-                ? <button type="button" className="atlas-place-action" onClick={() => onPlanFort(place.forecastId)}>{copy.openForecast}</button>
-                : place.coordinates && mappedLocationForPlace(place)
-                  ? <button type="button" className="atlas-place-action" onClick={() => onPlanLocation(mappedLocationForPlace(place).id)}>{copy.openTrailBriefing}</button>
-                : <a className="atlas-place-action" href={googleMapsSearch(place)} target="_blank" rel="noreferrer">{copy.findOnMap}</a>}
-            </article>
-          ))}
-          {filteredPlaces.length === 0 && <p className="atlas-empty">{copy.noFortMatches}</p>}
-        </div>
+      {mode === 'explore' && <div className="atlas-sources">
         <p className="atlas-source">
           {copy.atlasSourceNote}{' '}
           <a href={fortCatalogueSource} target="_blank" rel="noreferrer">{copy.publicIndexLink}</a>
@@ -140,14 +144,10 @@ export default function FortAtlas({ copy, onPlanFort, onPlanLocation, selectedFo
           count: fortCatalogue.length,
           mapped: mappedPlaces.length,
           features: fortMapFeatures.length,
-          pins: fortMapFeatures.length + mappedPlaces.filter((place) => !fortMapFeatures.some((feature) => (
-            feature.names.some((name) => name.toLocaleLowerCase().replace(/[^a-z0-9]+/g, '')
-              === place.name.toLocaleLowerCase().replace(/[^a-z0-9]+/g, ''))
-          ))).length,
+          pins: mapPinCount,
         })}</p>
         <p className="atlas-coverage-note">{copy.atlasCoverageNote}</p>
-        {selected && !selected.coordinates && <p className="atlas-selection-note">{copy.noCoordinatesNote}</p>}
-      </div>
+      </div>}
     </section>
   );
 }
