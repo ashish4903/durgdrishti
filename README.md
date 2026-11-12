@@ -52,3 +52,7 @@ Recommendations use the saved interests, de-prioritize previously visited forts,
 The dashboard summarizes district labels in the index and compares modelled crowd-pressure estimates for the seven benchmark forts. District totals count index records (not unique, officially verified forts), and hotspot values are not live visitor counts or current trail conditions.
 
 Fort profiles with missing data include a prefilled link to create a public GitHub issue. Contributors should provide reliable source links and avoid personal or sensitive information. There is no in-app contribution backend or private submission channel.
+
+## License
+
+[MIT](LICENSE). The fort data draws on the public sources listed above, which keep their own terms.
