@@ -17,7 +17,7 @@ jobs:
       - run: npm install --no-audit --no-fund
       - run: git diff --stat package-lock.json
       - name: ESLint report
-        run: npx eslint . --format unix || true
+        run: npx eslint . || true
       - run: npm test
       - uses: actions/upload-artifact@v4
         with:
