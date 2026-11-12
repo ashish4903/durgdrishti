@@ -1,0 +1,25 @@
+# Fork-only helper: updates package-lock.json for the new dev dependencies, runs ESLint to see
+# what it reports on the existing code, and uploads the lockfile. Never part of a pull request.
+name: Fork lockfile and lint
+on:
+  push:
+    branches: [lock-sandbox]
+permissions:
+  contents: read
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - run: git diff --stat package-lock.json
+      - name: ESLint report
+        run: npx eslint . --format unix || true
+      - run: npm test
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lockfile
+          path: package-lock.json
