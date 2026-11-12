@@ -1,0 +1,22 @@
+# Fork-only helper: runs the tests and the production build for the perf branch on GitHub's
+# machines and prints the bundle sizes. Never part of a pull request.
+name: Fork perf check
+on:
+  push:
+    branches: [perf-sandbox]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - name: Bundle sizes
+        run: ls -l dist/assets && for f in dist/assets/*.js; do echo "$f $(gzip -9 -c "$f" | wc -c) bytes gzipped"; done
