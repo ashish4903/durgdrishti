@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -20,3 +22,12 @@ jobs:
       - run: npm run build
       - name: Bundle sizes
         run: ls -l dist/assets && for f in dist/assets/*.js; do echo "$f $(gzip -9 -c "$f" | wc -c) bytes gzipped"; done
+      - name: Translations unchanged by the split
+        run: |
+          mkdir -p /tmp/old && git show origin/main:src/data/translations.js > /tmp/old/translations.mjs
+          node --input-type=module -e "import { translations as before } from '/tmp/old/translations.mjs'; import { translations as after } from './src/data/translations.js'; import assert from 'node:assert/strict'; for (const lang of ['en', 'mr', 'hi']) { const { atlasLoading, ...rest } = after[lang]; assert.deepEqual(rest, before[lang]); assert.ok(atlasLoading); console.log(lang, Object.keys(before[lang]).length, 'strings identical'); }"
+      - name: Browser check of the built site
+        run: |
+          npx vite preview --port 4173 --strictPort &
+          sleep 3
+          node .github/scripts/browser-check.mjs http://localhost:4173/durgdrishti/
