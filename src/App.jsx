@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import FortFinder from './components/FortFinder.jsx';
 import FortDashboard from './components/FortDashboard.jsx';
 import RecommendedForts from './components/RecommendedForts.jsx';
@@ -33,6 +33,29 @@ function readVisitorProfile() {
   } catch (error) {
     console.error('Could not read the locally saved visitor profile.', error);
     return null;
+  }
+}
+
+const languageKey = 'durgdrishti-language-v1';
+const supportedLanguages = ['en', 'mr', 'hi'];
+
+// The language chosen on an earlier visit, otherwise the first supported language the browser prefers.
+function preferredLanguage() {
+  try {
+    const saved = localStorage.getItem(languageKey);
+    if (supportedLanguages.includes(saved)) return saved;
+  } catch {
+    // Storage is blocked: fall back to the browser's languages.
+  }
+  const browserLanguages = navigator.languages?.length ? navigator.languages : [navigator.language];
+  return browserLanguages.map((tag) => String(tag).slice(0, 2).toLowerCase()).find((code) => supportedLanguages.includes(code)) ?? 'en';
+}
+
+function saveLanguage(language) {
+  try {
+    localStorage.setItem(languageKey, language);
+  } catch {
+    // Storage is blocked: the choice still applies until the page is closed.
   }
 }
 
@@ -79,7 +102,7 @@ function App() {
   // if loading fails (e.g. offline), it stays in the current language.
   const [loadedCopy, setLoadedCopy] = useState({ en: defaultCopy });
   const copy = loadedCopy[language] ?? defaultCopy;
-  const changeLanguage = (next) => {
+  const showLanguage = (next) => {
     if (loadedCopy[next]) {
       setLanguage(next);
       return;
@@ -91,6 +114,18 @@ function App() {
       })
       .catch(() => {});
   };
+  // A language the visitor picks is remembered for their next visit.
+  const changeLanguage = (next) => {
+    saveLanguage(next);
+    showLanguage(next);
+  };
+  // On start, switch to the remembered or browser-preferred language (English is shown meanwhile).
+  useEffect(() => {
+    const preferred = preferredLanguage();
+    if (preferred !== 'en') showLanguage(preferred);
+    // Runs once on start; later changes go through changeLanguage.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const saveVisitorProfile = (profile) => {
     setVisitorProfile(profile);
     setProfileSetupOpen(false);
