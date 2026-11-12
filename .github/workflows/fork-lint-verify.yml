@@ -1,0 +1,20 @@
+# Fork-only helper: verifies the ESLint branch exactly as CI would run it. Never part of a PR.
+name: Fork lint verify
+on:
+  push:
+    branches: [lint-verify]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
