@@ -1,0 +1,26 @@
+# Fork-only helper: builds all prepared branches merged together and checks them in a browser.
+# Never part of a pull request.
+name: Fork combined verify
+on:
+  push:
+    branches: [all-verify]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - name: Browser checks
+        run: |
+          npx vite preview --port 4173 --strictPort &
+          sleep 3
+          node .github/scripts/all-check.mjs http://localhost:4173/durgdrishti/

@@ -85,6 +85,8 @@ function Icon({ name, size = 20 }) {
 }
 
 function App() {
+  // TEMPORARY PROBE (fork-only test branch): crash on purpose to test the ErrorBoundary.
+  if (new URLSearchParams(window.location.search).has('crash')) throw new Error('Test crash');
   const [language, setLanguage] = useState('en');
   const [page, setPage] = useState('home');
   const [visitorProfile, setVisitorProfile] = useState(readVisitorProfile);
