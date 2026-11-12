@@ -4,7 +4,6 @@ import {
   describeWeatherCode,
   findCommonsPhoto,
   findWikipediaHistory,
-  getLandmarkWeather,
   weatherAdvice,
 } from './landmarkResources.js';
 import { translations } from './translations.js';
