@@ -17,13 +17,18 @@ npm.cmd install
 npm.cmd run dev
 ```
 
-Run the unit checks and create a production bundle:
+The commands use `npm.cmd` for Windows PowerShell; on macOS or Linux, use `npm` instead.
+
+Run the unit checks and the linter, and create a production bundle:
 
 ```powershell
 npm.cmd test
+npm.cmd run lint
 npm.cmd run build
 npm.cmd run preview
 ```
+
+ESLint checks the code for common mistakes, including React hook rules (`eslint.config.js`).
 
 The client bundle is written to `dist/`. No database or user authentication is needed. The optional AI photo feature uses the serverless function in `api/identify.js`; `npm run preview` serves only static files and does not emulate that function.
 
