@@ -119,12 +119,17 @@ function App() {
     saveLanguage(next);
     showLanguage(next);
   };
-  // On start, switch to the remembered or browser-preferred language (English is shown meanwhile).
+  // On start, switch to the remembered or browser-preferred language once its text has loaded
+  // (English is shown meanwhile). Later changes go through changeLanguage.
   useEffect(() => {
     const preferred = preferredLanguage();
-    if (preferred !== 'en') showLanguage(preferred);
-    // Runs once on start; later changes go through changeLanguage.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (preferred === 'en') return;
+    loadTranslation(preferred)
+      .then((nextCopy) => {
+        setLoadedCopy((current) => ({ ...current, [preferred]: nextCopy }));
+        setLanguage(preferred);
+      })
+      .catch(() => {});
   }, []);
   const saveVisitorProfile = (profile) => {
     setVisitorProfile(profile);
