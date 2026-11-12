@@ -4,7 +4,7 @@ import FortDashboard from './components/FortDashboard.jsx';
 import RecommendedForts from './components/RecommendedForts.jsx';
 import VisitorProfileForm from './components/VisitorProfileForm.jsx';
 import { forts } from './data/forts.js';
-import { translations } from './data/translations.js';
+import { defaultCopy, loadTranslation } from './data/loadTranslation.js';
 import { calculateLocationForecast, slotMultipliers } from './data/forecast.js';
 import { fortCatalogue, mappedTrailLocations } from './data/fortCatalogue.js';
 import { createContributionUrl, getFortCoverage } from './data/fortDiscovery.js';
@@ -75,7 +75,22 @@ function App() {
   const [slot, setSlot] = useState('alpine');
   const [surge, setSurge] = useState(false);
   const [pledged, setPledged] = useState(false);
-  const copy = translations[language];
+  // Languages already downloaded. The page switches once the chosen language has loaded;
+  // if loading fails (e.g. offline), it stays in the current language.
+  const [loadedCopy, setLoadedCopy] = useState({ en: defaultCopy });
+  const copy = loadedCopy[language] ?? defaultCopy;
+  const changeLanguage = (next) => {
+    if (loadedCopy[next]) {
+      setLanguage(next);
+      return;
+    }
+    loadTranslation(next)
+      .then((nextCopy) => {
+        setLoadedCopy((current) => ({ ...current, [next]: nextCopy }));
+        setLanguage(next);
+      })
+      .catch(() => {});
+  };
   const saveVisitorProfile = (profile) => {
     setVisitorProfile(profile);
     setProfileSetupOpen(false);
@@ -229,7 +244,7 @@ function App() {
           <span className="topbar-status"><span className="status-dot" />{copy.liveModel}</span>
           <label className="language-select">
             <span className="sr-only">{copy.language}</span>
-            <select value={language} onChange={(event) => setLanguage(event.target.value)} aria-label={copy.language}>
+            <select value={language} onChange={(event) => changeLanguage(event.target.value)} aria-label={copy.language}>
               <option value="en">EN</option>
               <option value="mr">मराठी</option>
               <option value="hi">हिन्दी</option>
