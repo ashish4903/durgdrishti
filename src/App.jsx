@@ -1,15 +1,16 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
-import FortAtlas from './components/FortAtlas.jsx';
 import FortFinder from './components/FortFinder.jsx';
 import FortDashboard from './components/FortDashboard.jsx';
 import RecommendedForts from './components/RecommendedForts.jsx';
 import VisitorProfileForm from './components/VisitorProfileForm.jsx';
 import { forts } from './data/forts.js';
-import { translations } from './data/translations.js';
+import { defaultCopy, loadTranslation } from './data/loadTranslation.js';
 import { calculateLocationForecast, slotMultipliers } from './data/forecast.js';
 import { fortCatalogue, mappedTrailLocations } from './data/fortCatalogue.js';
 import { createContributionUrl, getFortCoverage } from './data/fortDiscovery.js';
 
+// The fort atlas includes the map library, so it is loaded only when its page is opened.
+const FortAtlas = lazy(() => import('./components/FortAtlas.jsx'));
 const LandmarkToolkit = lazy(() => import('./components/LandmarkToolkit.jsx'));
 const visitorProfileKey = 'durgdrishti-visitor-profile-v1';
 const profileDismissedKey = 'durgdrishti-profile-setup-dismissed-v1';
@@ -74,7 +75,22 @@ function App() {
   const [slot, setSlot] = useState('alpine');
   const [surge, setSurge] = useState(false);
   const [pledged, setPledged] = useState(false);
-  const copy = translations[language];
+  // Languages already downloaded. The page switches once the chosen language has loaded;
+  // if loading fails (e.g. offline), it stays in the current language.
+  const [loadedCopy, setLoadedCopy] = useState({ en: defaultCopy });
+  const copy = loadedCopy[language] ?? defaultCopy;
+  const changeLanguage = (next) => {
+    if (loadedCopy[next]) {
+      setLanguage(next);
+      return;
+    }
+    loadTranslation(next)
+      .then((nextCopy) => {
+        setLoadedCopy((current) => ({ ...current, [next]: nextCopy }));
+        setLanguage(next);
+      })
+      .catch(() => {});
+  };
   const saveVisitorProfile = (profile) => {
     setVisitorProfile(profile);
     setProfileSetupOpen(false);
@@ -228,7 +244,7 @@ function App() {
           <span className="topbar-status"><span className="status-dot" />{copy.liveModel}</span>
           <label className="language-select">
             <span className="sr-only">{copy.language}</span>
-            <select value={language} onChange={(event) => setLanguage(event.target.value)} aria-label={copy.language}>
+            <select value={language} onChange={(event) => changeLanguage(event.target.value)} aria-label={copy.language}>
               <option value="en">EN</option>
               <option value="mr">मराठी</option>
               <option value="hi">हिन्दी</option>
@@ -305,15 +321,17 @@ function App() {
               <h1>{page === 'explore' ? copy.explorePageTitle : copy.insightsPageTitle}</h1>
               <p>{page === 'explore' ? copy.explorePageIntro : copy.insightsPageIntro}</p>
             </section>
-            <FortAtlas
-              copy={copy}
-              mode={page}
-              profile={visitorProfile}
-              selectedFortId={forecastFort?.id ?? fortId}
-              selectedLocationId={mappedLocationId}
-              onPlanLocation={openMappedLocation}
-              onGetInsights={openFortInsights}
-            />
+            <Suspense fallback={<div className="mapped-forecast-panel">{copy.atlasLoading}</div>}>
+              <FortAtlas
+                copy={copy}
+                mode={page}
+                profile={visitorProfile}
+                selectedFortId={forecastFort?.id ?? fortId}
+                selectedLocationId={mappedLocationId}
+                onPlanLocation={openMappedLocation}
+                onGetInsights={openFortInsights}
+              />
+            </Suspense>
           </>
         )}
 
