@@ -28,6 +28,13 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 a { color: inherit; }
 
 .app-shell { width: min(1440px, 100%); margin: 0 auto; padding: 0 64px; }
+
+/* Shown by ErrorBoundary instead of a blank page when the app crashes. */
+.app-error { width: min(560px, 100%); margin: 0 auto; padding: 18vh 24px; text-align: center; }
+.app-error h1 { margin: 0 0 12px; color: var(--cream); font-size: 1.6rem; }
+.app-error p { margin: 4px 0; color: var(--muted); }
+.app-error button { margin-top: 24px; padding: 12px 20px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel-soft); color: var(--lime); cursor: pointer; }
+.app-error button:hover { border-color: var(--lime); }
 .topbar { height: 74px; border-bottom: 1px solid #29312b; display: flex; align-items: center; justify-content: space-between; }
 .brand, .footer-brand { display: inline-flex; align-items: center; gap: 11px; color: #dce5d8; text-decoration: none; font: 500 11px var(--mono); letter-spacing: .12em; }
 .brand-mark { width: 31px; height: 31px; display: inline-grid; place-items: center; color: var(--lime); border: 1px solid #465447; background: #1a241d; border-radius: 2px 9px 2px 2px; }
