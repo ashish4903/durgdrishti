@@ -50,10 +50,6 @@ export default function FortAtlas({ copy, mode, profile, onPlanLocation, onGetIn
     feature.names.some((name) => name.toLocaleLowerCase().replace(/[^a-z0-9]+/g, '')
       === place.name.toLocaleLowerCase().replace(/[^a-z0-9]+/g, ''))
   ))).length;
-  const googleMapsSearch = (place) => {
-    const location = [place.name, place.district, 'Maharashtra', 'India'].filter(Boolean).join(', ');
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
-  };
   const formatMessage = (message, values) => Object.entries(values).reduce(
     (text, [key, value]) => text.replaceAll(`{${key}}`, String(value)),
     message,

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { translations } from '../data/translations.js';
 
 const MAX_IMAGE_BYTES = 12 * 1024 * 1024;
 const MAX_IMAGE_EDGE = 1_600;

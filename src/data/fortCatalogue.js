@@ -94,6 +94,8 @@ const directoryEntries = fortDirectoryData.map(({ name, district }) => ({
 export const fortMapFeatures = fortOsmData.map((feature) => ({
   ...feature,
   key: `${feature.type}/${feature.id}`,
+  // Prefer the ASCII (Latin-script) name; the control-character range is intended here.
+  // eslint-disable-next-line no-control-regex
   name: feature.names.find((name) => /^[\x00-\x7F]*$/.test(name)) ?? feature.names[0] ?? 'Fortification',
   url: `https://www.openstreetmap.org/${feature.type}/${feature.id}`,
 }));
