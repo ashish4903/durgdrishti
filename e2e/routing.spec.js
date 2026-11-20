@@ -113,8 +113,13 @@ test('the chosen language stays while moving between pages and forts', async ({ 
   await page.locator('header select').selectOption('mr');
   await expect(page.locator('html')).toHaveAttribute('lang', 'mr');
   await tab(page, 'dashboard').click();
-  await page.goto(`./#/fort/${directoryFort.id}`);
+  // Open a fort the way a visitor does, from the dashboard. (page.goto would be a fresh visit,
+  // and the language is not remembered between visits.)
+  await page.locator('.hotspot-row').first().click();
+  await expect.poll(() => hashOf(page)).toMatch(/^#\/fort\/.+/);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'mr');
   await page.goBack();
+  await expect.poll(() => hashOf(page)).toBe('#/dashboard');
   await expect(page.locator('html')).toHaveAttribute('lang', 'mr');
   await expect(page.locator('header select')).toHaveValue('mr');
 });
