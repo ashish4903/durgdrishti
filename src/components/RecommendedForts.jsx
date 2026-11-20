@@ -1,5 +1,7 @@
 import { getFortCoverage, getRecommendedForts, getUnsupportedInterests } from '../data/fortDiscovery.js';
 import { forts } from '../data/forts.js';
+import { formatRoute, fortRoute } from '../lib/route.js';
+import SaveButton from './SaveButton.jsx';
 
 function formatMessage(message, values) {
   return Object.entries(values).reduce(
@@ -8,7 +10,8 @@ function formatMessage(message, values) {
   );
 }
 
-export default function RecommendedForts({ copy, profile, onOpenFort, compact = false }) {
+/** `savedForts` (optional) adds a save button to each card: { isSaved(address), toggle(entry), onNotify(text) }. */
+export default function RecommendedForts({ copy, profile, onOpenFort, compact = false, savedForts = null }) {
   const recommendations = getRecommendedForts(profile);
   const unsupportedInterests = getUnsupportedInterests(profile);
   const allVisited = recommendations.every((entry) => entry.alreadyVisited);
@@ -58,7 +61,20 @@ export default function RecommendedForts({ copy, profile, onOpenFort, compact = 
               </ul>
               <p>{reason}</p>
               <p className="recommended-card-summary">{fort?.aboutKey ? copy[fort.aboutKey] : ''}</p>
-              <button type="button" className="atlas-place-action" onClick={() => onOpenFort(place)}>{copy.getInsights}</button>
+              <div className="recommended-card-actions">
+                <button type="button" className="atlas-place-action" onClick={() => onOpenFort(place)}>{copy.getInsights}</button>
+                {savedForts && (() => {
+                  const address = formatRoute(fortRoute(place.id));
+                  return (
+                    <SaveButton
+                      compact
+                      copy={copy}
+                      saved={savedForts.isSaved(address)}
+                      onToggle={() => savedForts.onNotify(savedForts.toggle({ address, name: place.name }) ? copy.savedFortAdded : copy.savedFortRemoved)}
+                    />
+                  );
+                })()}
+              </div>
             </article>
           );
         })}

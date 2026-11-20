@@ -1,4 +1,5 @@
 import { fortCatalogue, mappedTrailLocations } from '../data/fortCatalogue.js';
+import { forts } from '../data/forts.js';
 
 // Which fort the insights page shows. A fort can be opened from the catalogue (directory and
 // reference entries) or from a mapped location (OpenStreetMap and the seven benchmarked forts);
@@ -74,6 +75,20 @@ export function selectionForRoute(route) {
 export const routeExists = (route) => (
   route.page !== 'fort' && route.page !== 'place' ? true : selectionForRoute(route) !== null
 );
+
+/**
+ * The fort the crowd estimate describes: a mapped location (with its benchmark profile, if it
+ * has one), otherwise the benchmarked fort `fortId`. `forecastFort` is set only for the seven
+ * benchmarked forts.
+ */
+export function resolveBriefingFort({ fortId, mappedLocationId }) {
+  const selectedLocation = findMappedLocation(mappedLocationId);
+  const forecastFort = selectedLocation
+    ? forts.find((item) => item.id === selectedLocation.forecastId)
+    : forts.find((item) => item.id === fortId);
+  const fort = selectedLocation ? { ...(forecastFort ?? {}), ...selectedLocation } : forecastFort ?? forts[0];
+  return { fort, forecastFort };
+}
 
 /** The fort shown in the insights heading: catalogue details merged with its mapped location. */
 export function resolveInsightLocation({ selectedCatalogueId, mappedLocationId }) {

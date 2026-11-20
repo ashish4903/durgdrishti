@@ -236,6 +236,42 @@ const fortAboutCopy = {
   finderExampleCaveat: 'These are sample descriptions to show the result format, not a live model analysis. A photo cannot verify a landmark’s identity.',
 };
 
+// Text for the theme toggle, search, sharing, saved forts, the at-a-glance card and filters.
+const uiCopy = {
+  themeToDark: "Switch to dark theme",
+  themeToLight: "Switch to light theme",
+  searchOpen: "Search forts",
+  searchPlaceholder: "Search a fort or district",
+  searchNoResults: "No forts match “{query}”.",
+  searchHint: "Type a name. Use ↑ ↓ to move, Enter to open, Esc to close.",
+  searchResultsCount: "{count} results",
+  close: "Close",
+  share: "Share",
+  linkCopied: "Link copied",
+  shareFailed: "Could not copy the link. Copy it from the address bar.",
+  saveFort: "Save",
+  savedFort: "Saved",
+  savedFortAdded: "Added to your trek list",
+  savedFortRemoved: "Removed from your trek list",
+  savedFortsTitle: "Your trek list",
+  savedFortsIntro: "Forts you saved on this device.",
+  glanceTitle: "At a glance",
+  glanceBestTime: "Best time to start",
+  glanceCrowdThen: "Crowd then",
+  glanceBusiest: "Busiest time",
+  glanceWait: "{minutes} min wait at the narrow section",
+  glanceNoWait: "No wait expected at the narrow section",
+  glanceNote: "Modelled estimate for a typical day, not live data.",
+  crowdLow: "Quiet",
+  crowdMedium: "Busy",
+  crowdHigh: "Very busy",
+  filterLabel: "Filter forts",
+  filterHasEstimate: "Crowd estimate",
+  filterClear: "Clear filters",
+  filterResults: "{count} of {total} forts",
+  loadingLabel: "Loading",
+};
+
 export default {
   brand: 'DURGDRISHTI', eyebrow: 'FORT & TRAIL INTELLIGENCE · MAHARASHTRA', title: 'The mountain is not a queue.', subtitle: 'Plan Sahyadri fort treks with trail-pressure estimates, a statewide heritage atlas, and AI photo-based fort-or-peak guidance.',
   liveModel: 'LOCAL MODEL · NO LIVE FEED', planningDesk: 'Your trail briefing', planningSub: 'Adjust the plan. The estimates update instantly on this device.', planKicker: 'PLAN WITH CARE', spatialKicker: 'SPATIAL CONTEXT', classifierKicker: 'READ THE LANDSCAPE', localBadge: 'LOCAL', radius: '25 KM', fieldGuideStamp: 'FIELD GUIDE · SAHYADRI', regionStamp: 'SAHYADRI · MAHARASHTRA', dayStamp: 'DAY 04 / 100', footerCredit: 'DAY 04 · 100 DAYS OF ANALYTICS', minutesShort: 'min',
@@ -253,4 +289,5 @@ export default {
   finderLanguageCode: 'en', finderKicker: 'AI VISUAL FIELD GUIDE', finderTitle: 'Fort, or natural peak?', finderIntro: 'Upload a clear photo of the landmark. AI looks for visible built structures and tells you what it can — and cannot — infer.', finderPhotoLabel: 'LANDMARK PHOTO', finderPhotoHint: 'A wide view of the summit, gateways, or ramparts works best.', finderPhotoPreview: 'Selected landmark photo', finderChoosePhoto: 'Choose a photo or take one', finderPhotoTypes: 'JPEG · PNG · WEBP · max 12 MB', finderPrivacyTitle: 'Your photo is sent to OpenAI for analysis.', finderPrivacyBody: 'It is resized in your browser and is not saved by this site.', finderAnalyze: 'Analyze photo with AI', finderAnalyzing: 'Looking for architectural clues…', finderAnalyzingTitle: 'Reading visible landscape clues', finderAnalyzingBody: 'The image is sent securely to the configured AI vision service.', finderResultReady: 'AI FIELD ASSESSMENT', finderResultWaiting: 'WAITING FOR A PHOTO', finderEmptyTitle: 'Start with a clear landscape photo.', finderEmptyBody: 'The AI will look for visible gates, ramparts, cisterns, and other signs of construction.', finderConfidence: 'MODEL CONFIDENCE', finderCues: 'Visible clues', finderCaveat: 'A photo cannot establish the history, identity, or safety of a site.', finderDisclaimer: 'AI can be wrong. This is a visual aid, not an archaeological record or route-safety assessment. Verify heritage details and access locally.', finderFort: 'Likely engineered fort', finderNatural_peak: 'Likely natural peak', finderUncertain: 'Not enough visual evidence', finderInvalidImage: 'Choose an image file to continue.', finderImageTooLarge: 'Choose an image smaller than 12 MB.', finderFailed: 'Photo analysis failed. Please try again.',
   footer: 'Built for thoughtful journeys through the Sahyadri.', language: 'LANGUAGE', noAlternatives: 'No nearby alternative is listed for this trail.',
   ...fortAboutCopy,
+  ...uiCopy,
 };

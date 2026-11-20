@@ -9,7 +9,7 @@ const actions = [
 ];
 
 /** The home page below the tabs: where to start, the visitor profile and suggested forts. */
-export default function HomePage({ copy, visitorProfile, profileStorageWarning, onEditProfile, onOpenFort, onNavigate }) {
+export default function HomePage({ copy, visitorProfile, profileStorageWarning, onEditProfile, onOpenFort, onNavigate, savedForts }) {
   return (
     <section className="home-hub">
       <div className="home-section-heading">
@@ -30,7 +30,20 @@ export default function HomePage({ copy, visitorProfile, profileStorageWarning, 
         <button type="button" className="profile-edit-button" onClick={onEditProfile}>{visitorProfile ? copy.profileEdit : copy.profileSetupButton}</button>
       </div>
       {profileStorageWarning && <p className="profile-storage-warning" role="status">{copy.profileStorageWarning}</p>}
-      <RecommendedForts copy={copy} profile={visitorProfile} onOpenFort={onOpenFort} />
+      {savedForts.list.length > 0 && (
+        <section className="saved-forts" aria-labelledby="saved-forts-title">
+          <h2 id="saved-forts-title">{copy.savedFortsTitle}</h2>
+          <p>{copy.savedFortsIntro}</p>
+          <ul className="saved-list">
+            {savedForts.list.map((entry) => (
+              <li key={entry.address}>
+                <a className="saved-chip" href={entry.address}><Icon name="bookmark" size={16} />{entry.name}</a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      <RecommendedForts copy={copy} profile={visitorProfile} onOpenFort={onOpenFort} savedForts={savedForts} />
       <details className="home-about">
         <summary>{copy.homeAboutTitle}</summary>
         <p>{copy.homeAboutBody}</p>

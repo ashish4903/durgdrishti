@@ -3,7 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#101512" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#fbf7ef" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#111a17" media="(prefers-color-scheme: dark)" />
+    <!-- Apply a saved light/dark choice before the page draws, so it never flashes the other
+         theme. Keep in step with src/lib/theme.js (key and values). -->
+    <script>
+      try {
+        var savedTheme = localStorage.getItem('durgdrishti-theme-v1');
+        if (savedTheme === 'light' || savedTheme === 'dark') document.documentElement.setAttribute('data-theme', savedTheme);
+      } catch (error) { /* storage blocked: follow the device */ }
+    </script>
     <meta name="description" content="Forecast bottleneck queues across Maharashtra’s historic forts, discover crowd-free alternate trails, and identify unfortified peaks instantly using AI photo analysis." />
     <title>DurgDrishti — Fort &amp; Trail Intelligence</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

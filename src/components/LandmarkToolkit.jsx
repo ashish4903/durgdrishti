@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import Skeleton from './Skeleton.jsx';
 import {
   describeWeatherCode,
   findCommonsPhoto,
@@ -31,7 +32,9 @@ function LandmarkPhoto({ location, copy }) {
     <figure className="landmark-photo-card">
       {photo
         ? <img src={photo.imageUrl} alt={photo.title} loading="lazy" />
-        : <div className="landmark-photo-placeholder" role="img" aria-label={location.name}>
+        : status === 'loading'
+          ? <Skeleton block label={copy.photoLoading} />
+          : <div className="landmark-photo-placeholder" role="img" aria-label={location.name}>
           <span>{status === 'loading' ? copy.photoLoading : status === 'error' ? copy.photoFailed : copy.photoUnavailable}</span>
           {status === 'error' && <button type="button" onClick={() => setRetry((value) => value + 1)}>{copy.tryAgain}</button>}
         </div>}
@@ -109,9 +112,11 @@ function WeatherCard({ location, copy }) {
             wind_speed_10m_max: weather.daily.wind_speed_10m_max[selectedDay],
           }, copy)}</p>
         </>
+      ) : status === 'loading' ? (
+        <Skeleton label={copy.weatherLoading} />
       ) : (
         <p className="toolkit-state-message">
-          {status === 'loading' ? copy.weatherLoading : `${copy.weatherError} ${errorMessage}`}
+          {`${copy.weatherError} ${errorMessage}`}
           {status === 'error' && <button type="button" className="toolkit-retry" onClick={() => setRetry((value) => value + 1)}>{copy.tryAgain}</button>}
         </p>
       )}
@@ -146,7 +151,9 @@ function HistoryCard({ location, copy, language }) {
     <article className="toolkit-card history-card">
       <span className="section-kicker">{copy.fortHistory}</span>
       <h3>{history?.title ?? location.name}</h3>
-      <p>{history?.extract ?? (status === 'loading' ? copy.historyLoading : status === 'error' ? copy.historyError : copy.historyUnavailable)}</p>
+      {!history && status === 'loading'
+        ? <Skeleton label={copy.historyLoading} />
+        : <p>{history?.extract ?? (status === 'error' ? copy.historyError : copy.historyUnavailable)}</p>}
       {status === 'error' && <button type="button" className="toolkit-retry" onClick={() => setRetry((value) => value + 1)}>{copy.tryAgain}</button>}
       <a className="toolkit-source" href={history?.url ?? searchUrl} target="_blank" rel="noreferrer">
         {history ? copy.historySource : copy.searchHistory} ↗

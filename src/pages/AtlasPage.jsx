@@ -7,7 +7,7 @@ const FortAtlas = lazy(() => import('../components/FortAtlas.jsx'));
  * The fort atlas, used by two tabs: "explore" (browse every fort on the map) and "insights"
  * (pick a fort to read about). FortAtlas still calls the second mode "chooseInsight".
  */
-export default function AtlasPage({ copy, page, visitorProfile, selection, onPlanLocation, onGetInsights }) {
+export default function AtlasPage({ copy, page, visitorProfile, selection, onPlanLocation, onGetInsights, theme }) {
   const isExplore = page === 'explore';
   return (
     <>
@@ -25,6 +25,7 @@ export default function AtlasPage({ copy, page, visitorProfile, selection, onPla
           selectedLocationId={selection.mappedLocationId}
           onPlanLocation={onPlanLocation}
           onGetInsights={onGetInsights}
+          theme={theme}
         />
       </Suspense>
     </>

@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react';
 import FortFinder from './components/FortFinder.jsx';
 import FortDashboard from './components/FortDashboard.jsx';
+import FortSearch from './components/FortSearch.jsx';
 import SiteFooter from './components/SiteFooter.jsx';
 import SiteHeader from './components/SiteHeader.jsx';
 import TabBar from './components/TabBar.jsx';
+import Toast from './components/Toast.jsx';
 import VisitorProfileForm from './components/VisitorProfileForm.jsx';
 import { forts } from './data/forts.js';
 import { useHashRoute } from './hooks/useHashRoute.js';
 import { useLanguage } from './hooks/useLanguage.js';
+import { useSavedForts } from './hooks/useSavedForts.js';
+import { useTheme } from './hooks/useTheme.js';
+import { useToast } from './hooks/useToast.js';
 import { useVisitorProfile } from './hooks/useVisitorProfile.js';
 import {
   defaultSelection,
@@ -27,6 +32,10 @@ const siteTitle = 'DurgDrishti — Fort & Trail Intelligence';
 
 function App() {
   const { language, requestedLanguage, copy, changeLanguage } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
+  const [toastMessage, notify] = useToast();
+  const savedForts = useSavedForts();
+  const [searchOpen, setSearchOpen] = useState(false);
   const visitor = useVisitorProfile();
   const [route, navigate] = useHashRoute(routeExists);
   const address = formatRoute(route);
@@ -62,6 +71,19 @@ function App() {
     document.title = fortName ? `${fortName} · DurgDrishti` : siteTitle;
   }, [fortName]);
 
+  // Search from anywhere: "/" (when not typing) or Ctrl/⌘+K.
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      const typing = event.target instanceof HTMLElement && event.target.closest('input, textarea, select, [contenteditable="true"]');
+      if ((event.key === '/' && !typing) || ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k')) {
+        event.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   const openFort = (place) => navigate(fortRoute(place.id));
   const openMappedLocation = (id) => {
     if (findMappedLocation(id)) {
@@ -77,7 +99,14 @@ function App() {
 
   return (
     <div className="app-shell">
-      <SiteHeader copy={copy} requestedLanguage={requestedLanguage} onChangeLanguage={changeLanguage} />
+      <SiteHeader
+        copy={copy}
+        requestedLanguage={requestedLanguage}
+        onChangeLanguage={changeLanguage}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        onOpenSearch={() => setSearchOpen(true)}
+      />
 
       <main id="top">
         {route.page === 'home' && <HomeHero copy={copy} />}
@@ -91,6 +120,7 @@ function App() {
             onEditProfile={visitor.openSetup}
             onOpenFort={openFort}
             onNavigate={navigate}
+            savedForts={{ ...savedForts, onNotify: notify }}
           />
         )}
         {(route.page === 'explore' || route.page === 'insights') && (
@@ -101,6 +131,7 @@ function App() {
             selection={{ selectedFortId, mappedLocationId: selection.mappedLocationId }}
             onPlanLocation={openMappedLocation}
             onGetInsights={openFort}
+            theme={theme}
           />
         )}
         {isFortPage && insightLocation && (
@@ -108,7 +139,12 @@ function App() {
             copy={copy}
             language={language}
             location={insightLocation}
+            address={address}
             selection={selection}
+            pageSelection={{ ...defaultSelection, ...selectionForRoute(route) }}
+            saved={savedForts.isSaved(address)}
+            onToggleSaved={savedForts.toggle}
+            onNotify={notify}
             planner={planner}
             onCompareAlternative={compareAlternative}
           />
@@ -128,6 +164,8 @@ function App() {
         />
       )}
 
+      {searchOpen && <FortSearch copy={copy} onClose={() => setSearchOpen(false)} onOpenFort={openFort} />}
+      <Toast message={toastMessage} />
       <SiteFooter copy={copy} />
     </div>
   );

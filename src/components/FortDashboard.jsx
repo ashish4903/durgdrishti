@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { fortCatalogue } from '../data/fortCatalogue.js';
 import { getBenchmarkHotspots, getDistrictCounts } from '../data/fortDiscovery.js';
+import CrowdChip from './CrowdChip.jsx';
+import { crowdLevel } from '../lib/crowd.js';
 
 export default function FortDashboard({ copy, language, onGetInsights }) {
   const [slot, setSlot] = useState('peak');
@@ -58,7 +60,7 @@ export default function FortDashboard({ copy, language, onGetInsights }) {
               return (
                 <button type="button" className="hotspot-row" key={fort.id} onClick={() => place && onGetInsights(place)}>
                   <span className="hotspot-rank">{String(index + 1).padStart(2, '0')}</span>
-                  <span className="hotspot-info"><strong>{fort.name}</strong><small>{copy.modeledLoadLabel}</small></span>
+                  <span className="hotspot-info"><strong>{fort.name}</strong><CrowdChip copy={copy} level={crowdLevel(forecast)} /></span>
                   <span className="hotspot-bar dashboard-track" aria-hidden="true"><i style={{ width: `${Math.min(100, (forecast.activeLoad / maxHotspotLoad) * 100)}%` }} /></span>
                   <strong className="hotspot-value">{numberFormat.format(forecast.activeLoad)}</strong>
                   <span className="hotspot-arrow" aria-hidden="true">→</span>

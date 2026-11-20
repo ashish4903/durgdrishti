@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
+import CrowdChip from './CrowdChip.jsx';
 import Icon from './Icon.jsx';
 import TrailInsights from './TrailInsights.jsx';
 import { forts } from '../data/forts.js';
-import { mappedTrailLocations } from '../data/fortCatalogue.js';
 import { calculateLocationForecast, slotMultipliers } from '../data/forecast.js';
+import { crowdLevel, departureWindows as windows } from '../lib/crowd.js';
+import { resolveBriefingFort } from '../lib/fortSelection.js';
 import { createNumberFormatter, formatMessage } from '../lib/format.js';
-
-const windows = ['alpine', 'early', 'peak'];
 
 /**
  * The crowd-planning estimate for one fort: departure window, weekend surge, the four figures,
@@ -16,13 +16,9 @@ export default function TrailBriefing({ copy, language, fortId, mappedLocationId
   const { slot, setSlot, surge, setSurge } = planner;
   const formatNumber = createNumberFormatter(language);
 
-  const selectedLocation = mappedTrailLocations.find((item) => item.id === mappedLocationId);
-  const forecastFort = selectedLocation
-    ? forts.find((item) => item.id === selectedLocation.forecastId)
-    : forts.find((item) => item.id === fortId);
-  const fort = useMemo(
-    () => (selectedLocation ? { ...(forecastFort ?? {}), ...selectedLocation } : forecastFort ?? forts[0]),
-    [selectedLocation, forecastFort],
+  const { fort, forecastFort } = useMemo(
+    () => resolveBriefingFort({ fortId, mappedLocationId }),
+    [fortId, mappedLocationId],
   );
   const hasForecast = Boolean(fort.coordinates);
   const hasBenchmarkedForecast = Boolean(forecastFort);
@@ -35,6 +31,7 @@ export default function TrailBriefing({ copy, language, fortId, mappedLocationId
   const departureForecasts = hasForecast
     ? windows.map((window) => ({ window, ...calculateLocationForecast(fort, window, surge) }))
     : [];
+  const maxLoad = Math.max(1, ...departureForecasts.map((row) => row.activeLoad));
   const proxyEstimateNote = forecast?.isRegionalProxy
     ? formatMessage(copy.regionalProxyEstimateDisclaimer, {
       fort: forecast.nearestFort.name,
@@ -112,12 +109,29 @@ export default function TrailBriefing({ copy, language, fortId, mappedLocationId
                 <div><span className="section-kicker">{copy.departureComparisonKicker}</span><h3>{copy.departureComparisonTitle}</h3></div>
                 <span>{copy.surge}{surge ? ' · ×1.40' : ' · ×1.00'}</span>
               </div>
-              <div className="departure-table-wrap">
+              {/* The bars show the same figures as the table below, which screen readers use. */}
+              <ul className="departure-bars" aria-hidden="true">
+                {departureForecasts.map((row) => (
+                  <li key={row.window} className={`departure-bar ${row.window === slot ? 'is-selected' : ''}`}>
+                    <div className="departure-bar-head">
+                      <span><strong>{copy[row.window]}</strong> <small>{copy[`${row.window}Time`]}</small></span>
+                      <CrowdChip copy={copy} level={crowdLevel(row)} />
+                    </div>
+                    <div className="departure-bar-track">
+                      <i className={`crowd-${crowdLevel(row)}`} style={{ width: `${Math.max(3, (row.activeLoad / maxLoad) * 100)}%` }} />
+                    </div>
+                    <div className="departure-bar-meta">
+                      {formatNumber(row.activeLoad)} {copy.trekkers} · {copy.chokeWait}: {formatNumber(row.queueDelay)} {copy.minutesShort} · {copy.baseDelay}: {formatNumber(row.baseDelay)} {copy.minutesShort} · {formatNumber(row.wasteLoad)} kg
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <div className="sr-only">
                 <table className="departure-table">
                   <thead><tr><th>{copy.departureWindow}</th><th>{copy.activeLoad}</th><th>{copy.chokeWait}</th><th>{copy.baseDelay}</th><th>{copy.waste}</th></tr></thead>
                   <tbody>{departureForecasts.map((row) => (
                     <tr key={row.window} className={row.window === slot ? 'departure-row-selected' : ''}>
-                      <th scope="row">{copy[row.window]}<small>{copy[`${row.window}Time`]}</small></th>
+                      <th scope="row">{copy[row.window]}<small> {copy[`${row.window}Time`]} · {copy[{ low: 'crowdLow', medium: 'crowdMedium', high: 'crowdHigh' }[crowdLevel(row)]]}</small></th>
                       <td>{formatNumber(row.activeLoad)}</td>
                       <td>{formatNumber(row.queueDelay)} {copy.minutesShort}</td>
                       <td>{formatNumber(row.baseDelay)} {copy.minutesShort}</td>

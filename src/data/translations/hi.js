@@ -236,6 +236,42 @@ const fortAboutCopy = {
   finderExampleCaveat: 'ये नतीजे का प्रारूप दिखाने वाले नमूने हैं, लाइव AI विश्लेषण नहीं। तस्वीर से जगह की पहचान सत्यापित नहीं होती।',
 };
 
+// Text for the theme toggle, search, sharing, saved forts, the at-a-glance card and filters.
+const uiCopy = {
+  themeToDark: "गहरी थीम चुनें",
+  themeToLight: "हल्की थीम चुनें",
+  searchOpen: "किले खोजें",
+  searchPlaceholder: "किला या ज़िला खोजें",
+  searchNoResults: "“{query}” से मेल खाता कोई किला नहीं मिला।",
+  searchHint: "नाम लिखें। ↑ ↓ से चुनें, Enter से खोलें, Esc से बंद करें।",
+  searchResultsCount: "{count} परिणाम",
+  close: "बंद करें",
+  share: "शेयर करें",
+  linkCopied: "लिंक कॉपी हो गया",
+  shareFailed: "लिंक कॉपी नहीं हो सका। पता बार से कॉपी करें।",
+  saveFort: "सहेजें",
+  savedFort: "सहेजा गया",
+  savedFortAdded: "आपकी ट्रेक सूची में जोड़ा गया",
+  savedFortRemoved: "आपकी ट्रेक सूची से हटाया गया",
+  savedFortsTitle: "आपकी ट्रेक सूची",
+  savedFortsIntro: "इस डिवाइस पर आपके सहेजे गए किले।",
+  glanceTitle: "एक नज़र में",
+  glanceBestTime: "निकलने का सबसे अच्छा समय",
+  glanceCrowdThen: "उस समय भीड़",
+  glanceBusiest: "सबसे ज़्यादा भीड़ का समय",
+  glanceWait: "संकरे रास्ते पर {minutes} मिनट इंतज़ार",
+  glanceNoWait: "संकरे रास्ते पर इंतज़ार की उम्मीद नहीं",
+  glanceNote: "सामान्य दिन का मॉडल-आधारित अनुमान, लाइव डेटा नहीं।",
+  crowdLow: "शांत",
+  crowdMedium: "भीड़",
+  crowdHigh: "बहुत भीड़",
+  filterLabel: "किले छाँटें",
+  filterHasEstimate: "भीड़ का अनुमान",
+  filterClear: "फ़िल्टर हटाएँ",
+  filterResults: "{total} में से {count} किले",
+  loadingLabel: "लोड हो रहा है",
+};
+
 export default {
   brand: 'DURGDRISHTI', eyebrow: 'किला और ट्रेल इंटेलिजेंस · महाराष्ट्र', title: 'पहाड़ कोई कतार नहीं है।', subtitle: 'भीड़ के अनुमान, राज्यव्यापी विरासत सूची और फोटो आधारित AI मार्गदर्शन के साथ सह्याद्री किले की यात्रा की योजना बनाएं।',
   liveModel: 'स्थानीय अनुमान · लाइव डेटा नहीं', planningDesk: 'आपकी ट्रेल ब्रीफिंग', planningSub: 'समय बदलें। अनुमान इसी डिवाइस पर तुरंत अपडेट होंगे।', planKicker: 'सोच-समझकर योजना', spatialKicker: 'आसपास का भूगोल', classifierKicker: 'भूभाग को समझें', localBadge: 'स्थानीय', radius: '२५ किमी',
@@ -254,4 +290,5 @@ export default {
   finderLanguageCode: 'hi', finderKicker: 'AI दृश्य मार्गदर्शिका', finderTitle: 'किला या प्राकृतिक चोटी?', finderIntro: 'जगह की साफ तस्वीर अपलोड करें। AI दिखाई देने वाली बनावट के संकेत देखकर बताएगा कि तस्वीर से क्या समझा जा सकता है और क्या नहीं।', finderPhotoLabel: 'जगह की तस्वीर', finderPhotoHint: 'शिखर, दरवाजे या प्राचीर का खुला दृश्य बेहतर रहता है।', finderPhotoPreview: 'चुनी हुई जगह की तस्वीर', finderChoosePhoto: 'तस्वीर चुनें या लें', finderPhotoTypes: 'JPEG · PNG · WEBP · अधिकतम १२ MB', finderPrivacyTitle: 'विश्लेषण के लिए तस्वीर OpenAI को भेजी जाएगी।', finderPrivacyBody: 'ब्राउज़र में इसका आकार घटाया जाता है; यह साइट इसे सहेजती नहीं है।', finderAnalyze: 'AI से तस्वीर जांचें', finderAnalyzing: 'बनावट के संकेत देख रहे हैं…', finderAnalyzingTitle: 'दिखाई देने वाले संकेत पढ़ रहे हैं', finderAnalyzingBody: 'तस्वीर सुरक्षित रूप से कॉन्फ़िगर की गई AI सेवा को भेजी जाती है।', finderResultReady: 'AI मैदानी आकलन', finderResultWaiting: 'तस्वीर की प्रतीक्षा', finderEmptyTitle: 'भू-दृश्य की साफ तस्वीर से शुरू करें।', finderEmptyBody: 'AI दरवाजे, प्राचीर, पानी की टंकियां और अन्य निर्माण संकेत देखेगा।', finderConfidence: 'मॉडल का भरोसा', finderCues: 'दिखाई दिए संकेत', finderCaveat: 'सिर्फ तस्वीर से जगह का इतिहास, नाम या सुरक्षा साबित नहीं होती।', finderDisclaimer: 'AI गलत हो सकता है। यह दृश्य सहायता है, पुरातात्विक रिकॉर्ड या मार्ग-सुरक्षा जांच नहीं। विरासत और पहुंच की जानकारी स्थानीय रूप से सत्यापित करें।', finderFort: 'संभवतः मानव-निर्मित किला', finderNatural_peak: 'संभवतः प्राकृतिक चोटी', finderUncertain: 'दृश्य प्रमाण पर्याप्त नहीं', finderInvalidImage: 'जारी रखने के लिए तस्वीर चुनें।', finderImageTooLarge: '१२ MB से छोटी तस्वीर चुनें।', finderFailed: 'तस्वीर का विश्लेषण नहीं हो पाया। फिर कोशिश करें।',
   footer: 'सह्याद्री में समझदारी से घूमने के लिए।', language: 'भाषा', noAlternatives: 'इस रास्ते के लिए कोई नजदीकी विकल्प सूचीबद्ध नहीं है।',
   ...fortAboutCopy,
+  ...uiCopy,
 };

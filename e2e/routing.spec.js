@@ -56,7 +56,10 @@ test('a shared link to a catalogue fort opens that fort', async ({ page }) => {
 test('a shared link to a mapped location opens it, with its trail briefing', async ({ page }) => {
   await page.goto('./#/place/rajgad');
   await expect(page.locator('h1')).toContainText(benchmarked.name.split(' ')[0]);
-  await page.locator('.estimate-details > summary').click();
+  // The briefing starts open on wide screens and closed on phones.
+  if (!(await page.locator('.estimate-details').evaluate((details) => details.open))) {
+    await page.locator('.estimate-details > summary').click();
+  }
   await expect(page.locator('#fort-briefing')).toBeVisible();
 });
 

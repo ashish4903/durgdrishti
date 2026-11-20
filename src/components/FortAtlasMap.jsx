@@ -24,7 +24,17 @@ function AtlasViewport({ places, features, selected }) {
   return null;
 }
 
-export default function FortAtlasMap({ places, features, selectedId, selectedLocationId, onSelect, onPlanLocation, copy }) {
+// Leaflet draws circle pins as SVG with colour attributes, which cannot use CSS variables, so the
+// theme colours are read from the page's tokens (and read again when the theme changes).
+// eslint-disable-next-line no-unused-vars -- the theme only says when to read the colours again
+function themeColours(theme) {
+  const style = getComputedStyle(document.documentElement);
+  const read = (name, fallback) => style.getPropertyValue(name).trim() || fallback;
+  return { pin: read('--primary', '#1f5c4f'), selected: read('--accent', '#b4500e'), hover: read('--highlight', '#f3c969') };
+}
+
+export default function FortAtlasMap({ places, features, selectedId, selectedLocationId, hoveredId, onSelect, onPlanLocation, copy, theme }) {
+  const colours = useMemo(() => themeColours(theme), [theme]);
   const selected = places.find((place) => place.id === selectedId);
   const selectedMappedFeature = features.find((feature) => selectedLocationId === `atlas:${feature.key}`);
   const selectedSupplement = places.find((place) => selectedLocationId === `atlas:${place.id}`);
@@ -50,7 +60,7 @@ export default function FortAtlasMap({ places, features, selectedId, selectedLoc
           <Circle
             center={selectedLocation.coordinates}
             radius={25_000}
-            pathOptions={{ color: '#8ebc91', weight: 1, dashArray: '5 7', fillColor: '#8ebc91', fillOpacity: 0.035 }}
+            pathOptions={{ color: colours.pin, weight: 1.5, dashArray: '5 7', fillColor: colours.pin, fillOpacity: 0.05 }}
           />
         )}
         {features.map((feature) => {
@@ -59,17 +69,15 @@ export default function FortAtlasMap({ places, features, selectedId, selectedLoc
             name.toLocaleLowerCase().replace(/[^a-z0-9]+/g, '')
               === place.name.toLocaleLowerCase().replace(/[^a-z0-9]+/g, '')
           )));
+          const isSelected = isSelectedLocation || matchingPlace?.id === selectedId;
+          const isHovered = Boolean(hoveredId) && matchingPlace?.id === hoveredId;
+          const colour = isHovered ? colours.hover : isSelected ? colours.selected : colours.pin;
           return (
             <CircleMarker
               key={feature.key}
               center={[feature.lat, feature.lon]}
-              radius={isSelectedLocation || matchingPlace?.id === selectedId ? 7 : 4}
-              pathOptions={{
-                color: isSelectedLocation || matchingPlace?.id === selectedId ? '#ef8273' : '#9cc18d',
-                fillColor: isSelectedLocation || matchingPlace?.id === selectedId ? '#ef8273' : '#9cc18d',
-                fillOpacity: 0.8,
-                weight: 1,
-              }}
+              radius={isHovered ? 10 : isSelected ? 8 : 5}
+              pathOptions={{ color: colour, fillColor: colour, fillOpacity: 0.85, weight: isHovered ? 3 : 1.5 }}
             >
               <Popup>
                 <strong>{feature.name}</strong><br />
@@ -89,7 +97,7 @@ export default function FortAtlasMap({ places, features, selectedId, selectedLoc
           )))) return null;
           const icon = L.divIcon({
             className: 'map-marker-wrapper',
-            html: `<span class="map-marker ${isSelectedLocation || place.id === selectedId ? 'map-marker-red' : 'map-marker-green'}"></span>`,
+            html: `<span class="map-marker ${place.id === hoveredId ? 'map-marker-hover' : isSelectedLocation || place.id === selectedId ? 'map-marker-red' : 'map-marker-green'}"></span>`,
             iconSize: [20, 20],
             iconAnchor: [10, 10],
           });

@@ -20,7 +20,7 @@ export default function TabBar({ copy, activeTab }) {
           className={activeTab === tab.page ? 'tab active' : 'tab'}
           aria-current={activeTab === tab.page ? 'page' : undefined}
         >
-          <Icon name={tab.icon} size={16} />{copy[tab.label]}
+          <Icon name={tab.icon} size={20} /><span className="tab-label">{copy[tab.label]}</span>
         </a>
       ))}
     </nav>

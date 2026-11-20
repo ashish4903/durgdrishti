@@ -236,6 +236,42 @@ const fortAboutCopy = {
   finderExampleCaveat: 'हे निकालाचे स्वरूप दाखवणारे नमुने आहेत; प्रत्यक्ष AI विश्लेषण नाही. फोटोवरून ठिकाणाची ओळख सिद्ध होत नाही.',
 };
 
+// Text for the theme toggle, search, sharing, saved forts, the at-a-glance card and filters.
+const uiCopy = {
+  themeToDark: "गडद रंगसंगती वापरा",
+  themeToLight: "फिकट रंगसंगती वापरा",
+  searchOpen: "गड शोधा",
+  searchPlaceholder: "गड किंवा जिल्हा शोधा",
+  searchNoResults: "“{query}” शी जुळणारा गड सापडला नाही.",
+  searchHint: "नाव लिहा. ↑ ↓ ने निवडा, Enter ने उघडा, Esc ने बंद करा.",
+  searchResultsCount: "{count} निकाल",
+  close: "बंद करा",
+  share: "शेअर करा",
+  linkCopied: "दुवा कॉपी झाला",
+  shareFailed: "दुवा कॉपी करता आला नाही. पत्त्याच्या ओळीतून कॉपी करा.",
+  saveFort: "जतन करा",
+  savedFort: "जतन केले",
+  savedFortAdded: "तुमच्या ट्रेक यादीत जोडले",
+  savedFortRemoved: "तुमच्या ट्रेक यादीतून काढले",
+  savedFortsTitle: "तुमची ट्रेक यादी",
+  savedFortsIntro: "या उपकरणावर तुम्ही जतन केलेले गड.",
+  glanceTitle: "थोडक्यात",
+  glanceBestTime: "निघण्याची सर्वोत्तम वेळ",
+  glanceCrowdThen: "तेव्हाची गर्दी",
+  glanceBusiest: "सर्वाधिक गर्दीची वेळ",
+  glanceWait: "अरुंद वाटेवर {minutes} मिनिटे थांबावे लागेल",
+  glanceNoWait: "अरुंद वाटेवर थांबावे लागणार नाही",
+  glanceNote: "सामान्य दिवसासाठी केलेला अंदाज, थेट माहिती नाही.",
+  crowdLow: "शांत",
+  crowdMedium: "गर्दी",
+  crowdHigh: "खूप गर्दी",
+  filterLabel: "गड निवडा",
+  filterHasEstimate: "गर्दीचा अंदाज",
+  filterClear: "निवड काढा",
+  filterResults: "{total} पैकी {count} गड",
+  loadingLabel: "लोड होत आहे",
+};
+
 export default {
   brand: 'DURGDRISHTI', eyebrow: 'गड आणि पायवाट माहिती · महाराष्ट्र', title: 'डोंगर म्हणजे रांग नव्हे.', subtitle: 'पायवाटेवरील गर्दीचा अंदाज, राज्यव्यापी गड निर्देशिका आणि फोटोवर आधारित AI मार्गदर्शनासह सह्याद्री भटकंतीचे नियोजन करा.',
   liveModel: 'स्थानिक अंदाज · थेट माहिती नाही', planningDesk: 'तुमचा मार्ग आराखडा', planningSub: 'वेळ निवडा. अंदाज या उपकरणावर लगेच बदलतील.', planKicker: 'जबाबदारीने नियोजन', spatialKicker: 'भौगोलिक माहिती', classifierKicker: 'भूभाग समजून घ्या', localBadge: 'स्थानिक', radius: '२५ किमी',
@@ -254,4 +290,5 @@ export default {
   finderLanguageCode: 'mr', finderKicker: 'AI दृश्य मार्गदर्शक', finderTitle: 'गड की नैसर्गिक शिखर?', finderIntro: 'ठिकाणाचा स्पष्ट फोटो निवडा. AI दिसणाऱ्या बांधकामांच्या खुणा पाहून काय सांगता येईल आणि काय नाही हे स्पष्ट करेल.', finderPhotoLabel: 'ठिकाणाचा फोटो', finderPhotoHint: 'शिखर, दरवाजा किंवा तटबंदीचा विस्तृत फोटो अधिक उपयुक्त.', finderPhotoPreview: 'निवडलेल्या ठिकाणाचा फोटो', finderChoosePhoto: 'फोटो निवडा किंवा काढा', finderPhotoTypes: 'JPEG · PNG · WEBP · कमाल १२ MB', finderPrivacyTitle: 'विश्लेषणासाठी फोटो OpenAI कडे पाठवला जाईल.', finderPrivacyBody: 'ब्राउझरमध्ये फोटोचा आकार कमी केला जातो; ही साइट तो साठवत नाही.', finderAnalyze: 'AI कडून फोटो तपासा', finderAnalyzing: 'बांधकामांच्या खुणा पाहत आहे…', finderAnalyzingTitle: 'दिसणाऱ्या खुणांचे विश्लेषण', finderAnalyzingBody: 'फोटो सुरक्षितरीत्या निवडलेल्या AI सेवेकडे पाठवला जातो.', finderResultReady: 'AI मैदानी अंदाज', finderResultWaiting: 'फोटोची प्रतीक्षा', finderEmptyTitle: 'भूभागाचा स्पष्ट फोटो निवडा.', finderEmptyBody: 'AI दरवाजे, तटबंदी, पाण्याच्या टाक्या आणि इतर बांधकामांच्या खुणा शोधेल.', finderConfidence: 'AI चा विश्वास', finderCues: 'दिसलेल्या खुणा', finderCaveat: 'फोटोवरून ठिकाणाचा इतिहास, नाव किंवा सुरक्षितता सिद्ध होत नाही.', finderDisclaimer: 'AI चुकू शकते. हा दृश्य अंदाज आहे; पुरातत्त्व नोंद किंवा मार्ग-सुरक्षा तपासणी नाही. वारसा व प्रवेशाची माहिती स्थानिक पातळीवर तपासा.', finderFort: 'बहुधा मानवनिर्मित गड', finderNatural_peak: 'बहुधा नैसर्गिक शिखर', finderUncertain: 'दृश्य पुरावा अपुरा', finderInvalidImage: 'पुढे जाण्यासाठी फोटो निवडा.', finderImageTooLarge: '१२ MB पेक्षा लहान फोटो निवडा.', finderFailed: 'फोटो तपासता आला नाही. पुन्हा प्रयत्न करा.',
   footer: 'सह्याद्रीत जबाबदारीने भटकण्यासाठी.', language: 'भाषा', noAlternatives: 'या वाटेसाठी जवळचा पर्याय नोंदलेला नाही.',
   ...fortAboutCopy,
+  ...uiCopy,
 };

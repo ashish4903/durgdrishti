@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import FortAtlasMap from './FortAtlasMap.jsx';
 import RecommendedForts from './RecommendedForts.jsx';
 import {
@@ -10,9 +10,17 @@ import {
   TrekshitizFortSource,
   UNESCOFortSource,
 } from '../data/fortCatalogue.js';
+import { districtsByCount, matchesQuery } from '../lib/search.js';
 
-export default function FortAtlas({ copy, mode, profile, onPlanLocation, onGetInsights, selectedFortId, selectedLocationId }) {
+export default function FortAtlas({ copy, mode, profile, onPlanLocation, onGetInsights, selectedFortId, selectedLocationId, theme }) {
   const [query, setQuery] = useState('');
+  const [district, setDistrict] = useState(null);
+  const [estimateOnly, setEstimateOnly] = useState(false);
+  const [hoveredId, setHoveredId] = useState(null);
+  const list = useRef(null);
+  const districts = useMemo(() => districtsByCount(fortCatalogue), []);
+  const hasFilters = Boolean(query.trim() || district || estimateOnly);
+  const clearFilters = () => { setQuery(''); setDistrict(null); setEstimateOnly(false); };
   const [selectedId, setSelectedId] = useState(() => (
     fortCatalogue.find((place) => place.forecastId === selectedFortId)?.id ?? fortCatalogue[0]?.id
   ));
@@ -20,14 +28,12 @@ export default function FortAtlas({ copy, mode, profile, onPlanLocation, onGetIn
     const selectedTrail = fortCatalogue.find((place) => place.forecastId === selectedFortId);
     if (selectedTrail) setSelectedId(selectedTrail.id);
   }, [selectedFortId]);
-  const filteredPlaces = useMemo(() => {
-    const normalizedQuery = query.trim().toLocaleLowerCase();
-    if (!normalizedQuery) return fortCatalogue;
-    return fortCatalogue.filter((place) => (
-      place.name.toLocaleLowerCase().includes(normalizedQuery)
-      || place.district?.toLocaleLowerCase().includes(normalizedQuery)
-    ));
-  }, [query]);
+  // A crowd estimate needs coordinates (the model uses the nearest benchmarked fort).
+  const filteredPlaces = useMemo(() => fortCatalogue.filter((place) => (
+    matchesQuery(place, query)
+    && (!district || place.district === district)
+    && (!estimateOnly || Boolean(place.coordinates))
+  )), [query, district, estimateOnly]);
   const mappedPlaces = useMemo(() => fortCatalogue.filter((place) => place.coordinates), []);
   const mappedLocationForPlace = (place) => {
     const normalize = (name) => name.toLocaleLowerCase().replace(/[^a-z0-9]+/g, '');
@@ -45,6 +51,16 @@ export default function FortAtlas({ copy, mode, profile, onPlanLocation, onGetIn
     setSelectedId(place.id);
     onGetInsights(place);
   };
+  // When a pin is chosen on the map, bring its row into view inside the list (not the page).
+  useEffect(() => {
+    const container = list.current;
+    const row = container?.querySelector(`[data-place-id="${CSS.escape(selectedId ?? '')}"]`);
+    if (!container || !row) return;
+    const top = row.offsetTop - container.offsetTop;
+    if (top < container.scrollTop || top + row.offsetHeight > container.scrollTop + container.clientHeight) {
+      container.scrollTo({ top: Math.max(0, top - 8), behavior: 'smooth' });
+    }
+  }, [selectedId]);
   const selected = fortCatalogue.find((place) => place.id === selectedId);
   const mapPinCount = fortMapFeatures.length + mappedPlaces.filter((place) => !fortMapFeatures.some((feature) => (
     feature.names.some((name) => name.toLocaleLowerCase().replace(/[^a-z0-9]+/g, '')
@@ -76,7 +92,7 @@ export default function FortAtlas({ copy, mode, profile, onPlanLocation, onGetIn
             <span className="section-kicker">{copy.browseForts}</span>
             <h3>{mode === 'chooseInsight' ? copy.insightPickerTitle : copy.fortIndex}</h3>
           </div>
-          <span className="atlas-result-count" aria-live="polite">{filteredPlaces.length} / {fortCatalogue.length}</span>
+          <span className="atlas-result-count" aria-live="polite">{formatMessage(copy.filterResults, { count: filteredPlaces.length, total: fortCatalogue.length })}</span>
         </div>
         <label className="sr-only" htmlFor="fort-search">{copy.searchForts}</label>
         <input
@@ -87,9 +103,25 @@ export default function FortAtlas({ copy, mode, profile, onPlanLocation, onGetIn
           onChange={(event) => setQuery(event.target.value)}
           placeholder={copy.searchForts}
         />
-        <div className="atlas-place-list" role="list" aria-label={copy.fortIndex}>
+        <div className="atlas-filters" role="group" aria-label={copy.filterLabel}>
+          <button type="button" className="chip" aria-pressed={estimateOnly} onClick={() => setEstimateOnly((value) => !value)}>{copy.filterHasEstimate}</button>
+          {districts.map(({ district: name, count }) => (
+            <button type="button" key={name} className="chip" aria-pressed={district === name} onClick={() => setDistrict((current) => (current === name ? null : name))}>
+              {name} <span aria-hidden="true">· {count}</span>
+            </button>
+          ))}
+          {hasFilters && <button type="button" className="chip chip-clear" onClick={clearFilters}>{copy.filterClear}</button>}
+        </div>
+        <div ref={list} className="atlas-place-list" role="list" aria-label={copy.fortIndex} onMouseLeave={() => setHoveredId(null)}>
           {filteredPlaces.map((place) => (
-            <article key={place.id} className={`atlas-place ${selectedId === place.id ? 'atlas-place-selected' : ''}`} role="listitem">
+            <article
+              key={place.id}
+              data-place-id={place.id}
+              className={`atlas-place ${selectedId === place.id ? 'atlas-place-selected' : ''}`}
+              role="listitem"
+              onMouseEnter={() => setHoveredId(place.id)}
+              onFocus={() => setHoveredId(place.id)}
+            >
               <button type="button" className="atlas-place-select" onClick={() => selectPlace(place)}>
                 <span className="atlas-place-name">{place.name}</span>
                 <span className="atlas-place-meta">
@@ -111,6 +143,8 @@ export default function FortAtlas({ copy, mode, profile, onPlanLocation, onGetIn
           features={fortMapFeatures}
           selectedId={selectedId}
           selectedLocationId={selectedLocationId}
+          hoveredId={hoveredId}
+          theme={theme}
           onSelect={setSelectedId}
           onPlanLocation={onPlanLocation}
           copy={copy}
