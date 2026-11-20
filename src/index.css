@@ -20,8 +20,8 @@
 }
 
 * { box-sizing: border-box; }
-html { min-width: 360px; scroll-behavior: smooth; }
-body { margin: 0; min-width: 360px; min-height: 100vh; background: radial-gradient(ellipse at 50% -18%, #18302c 0, var(--page) 49%); }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { margin: 0; min-height: 100vh; background: radial-gradient(ellipse at 50% -18%, #18302c 0, var(--page) 49%); }
 button, select, input { font: inherit; }
 button { color: inherit; }
 button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
@@ -41,9 +41,14 @@ a { color: inherit; }
 .topbar-right { display: flex; align-items: center; gap: 25px; }
 .topbar-status, .live-badge { display: inline-flex; align-items: center; gap: 8px; color: #a4afa5; font: 9px var(--mono); letter-spacing: .08em; }
 .status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; background: #a8cf8e; box-shadow: 0 0 10px #9dc87b80; }
-.language-select { position: relative; }
-.language-select select { appearance: none; border: 1px solid #344038; color: #c6d0c7; background: #171e19; padding: 8px 26px 8px 10px; border-radius: 2px; font: 10px var(--mono); cursor: pointer; }
-.language-select::after { content: '⌄'; position: absolute; right: 9px; top: 5px; color: var(--muted); pointer-events: none; }
+/* The language menu shows Devanagari labels (मराठी, हिन्दी), so it uses a font with Devanagari
+   glyphs, a line height that fits the vowel signs and a width that never cuts a label short.
+   The arrow is drawn with borders and centred, instead of a text glyph that fonts place differently. */
+.language-select { position: relative; display: inline-flex; flex-shrink: 0; align-items: center; }
+.language-select select { appearance: none; -webkit-appearance: none; min-width: 88px; min-height: 36px; border: 1px solid #344038; color: #c6d0c7; background: #171e19; padding: 6px 30px 6px 11px; border-radius: 2px; font: 600 13px/1.4 'Segoe UI', 'Nirmala UI', 'Noto Sans Devanagari', 'Mangal', system-ui, sans-serif; letter-spacing: normal; cursor: pointer; }
+.language-select::after { content: ''; position: absolute; right: 12px; top: 50%; width: 6px; height: 6px; border-right: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted); transform: translateY(-70%) rotate(45deg); pointer-events: none; }
+/* Letter spacing pulls Devanagari letters and vowel signs apart, so Marathi and Hindi get none. */
+html:is([lang="mr"], [lang="hi"]) body * { letter-spacing: normal !important; }
 .language-select option, .select-wrap option, .select-wrap optgroup { background: #18201b; color: #e3e8e1; }
 
 .hero { position: relative; display: flex; min-height: 300px; align-items: center; overflow: hidden; border-bottom: 1px solid #29312b; }
@@ -532,14 +537,14 @@ a { color: inherit; }
   .atlas-about-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
-  html, body { min-width: 360px; }
-  .app-shell { padding: 0 17px; }
-  .topbar { height: 63px; }
-  .brand { gap: 8px; font-size: 9px; letter-spacing: .08em; }
-  .brand-mark { width: 28px; height: 28px; }
-  .topbar-right { gap: 11px; }
-  .topbar-status { max-width: 110px; gap: 5px; font-size: 7px; line-height: 1.4; }
-  .language-select select { padding: 7px 22px 7px 7px; font-size: 9px; }
+  .app-shell { padding: 0 16px; }
+  .topbar { height: auto; min-height: 63px; padding: 8px 0; gap: 10px; }
+  .brand { gap: 8px; font-size: 9px; letter-spacing: .08em; min-width: 0; }
+  .brand-mark { width: 28px; height: 28px; flex-shrink: 0; }
+  .topbar-right { gap: 10px; min-width: 0; }
+  .topbar-status { max-width: 120px; gap: 5px; font-size: 9px; line-height: 1.35; }
+  /* 16px stops iOS Safari from zooming the page when the menu is tapped. */
+  .language-select select { min-width: 84px; min-height: 40px; padding: 6px 28px 6px 10px; font-size: 16px; }
   .hero { min-height: 274px; align-items: flex-start; }
   .hero-copy { width: 100%; padding: 34px 0 28px; }
   .hero-art { width: 88%; right: -43%; opacity: .45; }
@@ -963,4 +968,17 @@ body { color: #173a32; background: linear-gradient(180deg, #e1f2e7 0, #f3f5ed 42
   .profile-dialog-actions > span { display: none; }
   .profile-clear-button { margin-right: 0; }
   .contribution-card { align-items: flex-start; flex-direction: column; padding: 15px 12px; }
+}
+
+/* Small phones (320–400px wide): the brand mark alone links home, so the header still fits
+   the logo, the "no live feed" note and the language menu on one row. */
+@media (max-width: 400px) {
+  .brand > span:last-child { display: none; }
+  .topbar-status { max-width: 104px; font-size: 8px; }
+}
+
+/* Touch screens of any width (phones and tablets): a menu that is easy to tap, at 16px so
+   iOS Safari does not zoom the page when it opens. */
+@media (pointer: coarse) {
+  .language-select select { min-height: 40px; font-size: 16px; }
 }

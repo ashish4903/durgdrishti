@@ -20,8 +20,8 @@ export default defineConfig([
     },
   },
   {
-    // The serverless function, the Vite config and the unit tests run in Node.
-    files: ['api/**/*.js', 'vite.config.js', '**/*.test.js'],
+    // The serverless function, the Vite and Playwright configs and the tests run in Node.
+    files: ['api/**/*.js', 'vite.config.js', 'playwright.config.js', '**/*.test.js', 'e2e/**/*.js'],
     languageOptions: { globals: globals.node },
   },
 ]);

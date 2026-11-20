@@ -1,10 +1,11 @@
-import { lazy, Suspense, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import FortFinder from './components/FortFinder.jsx';
 import FortDashboard from './components/FortDashboard.jsx';
 import RecommendedForts from './components/RecommendedForts.jsx';
 import VisitorProfileForm from './components/VisitorProfileForm.jsx';
 import { forts } from './data/forts.js';
 import { defaultCopy, loadTranslation } from './data/loadTranslation.js';
+import { htmlLangFor, isSupportedLanguage, languages } from './data/languages.js';
 import { calculateLocationForecast, slotMultipliers } from './data/forecast.js';
 import { fortCatalogue, mappedTrailLocations } from './data/fortCatalogue.js';
 import { createContributionUrl, getFortCoverage } from './data/fortDiscovery.js';
@@ -76,10 +77,17 @@ function App() {
   const [surge, setSurge] = useState(false);
   const [pledged, setPledged] = useState(false);
   // Languages already downloaded. The page switches once the chosen language has loaded;
-  // if loading fails (e.g. offline), it stays in the current language.
+  // if loading fails (e.g. offline), it stays in the current language. The menu shows the
+  // choice straight away, and only the most recent choice is applied, so a slow download
+  // cannot switch the page back to a language the visitor has already moved away from.
   const [loadedCopy, setLoadedCopy] = useState({ en: defaultCopy });
+  const [requestedLanguage, setRequestedLanguage] = useState('en');
+  const latestLanguageRequest = useRef('en');
   const copy = loadedCopy[language] ?? defaultCopy;
   const changeLanguage = (next) => {
+    if (!isSupportedLanguage(next)) return;
+    latestLanguageRequest.current = next;
+    setRequestedLanguage(next);
     if (loadedCopy[next]) {
       setLanguage(next);
       return;
@@ -87,10 +95,17 @@ function App() {
     loadTranslation(next)
       .then((nextCopy) => {
         setLoadedCopy((current) => ({ ...current, [next]: nextCopy }));
-        setLanguage(next);
+        if (latestLanguageRequest.current === next) setLanguage(next);
       })
-      .catch(() => {});
+      .catch(() => {
+        if (latestLanguageRequest.current !== next) return;
+        latestLanguageRequest.current = language;
+        setRequestedLanguage(language);
+      });
   };
+  useEffect(() => {
+    document.documentElement.lang = htmlLangFor(language);
+  }, [language]);
   const saveVisitorProfile = (profile) => {
     setVisitorProfile(profile);
     setProfileSetupOpen(false);
@@ -244,10 +259,10 @@ function App() {
           <span className="topbar-status"><span className="status-dot" />{copy.liveModel}</span>
           <label className="language-select">
             <span className="sr-only">{copy.language}</span>
-            <select value={language} onChange={(event) => changeLanguage(event.target.value)} aria-label={copy.language}>
-              <option value="en">EN</option>
-              <option value="mr">मराठी</option>
-              <option value="hi">हिन्दी</option>
+            <select value={requestedLanguage} onChange={(event) => changeLanguage(event.target.value)} aria-label={copy.language}>
+              {languages.map((option) => (
+                <option key={option.code} value={option.code} lang={option.htmlLang}>{option.label}</option>
+              ))}
             </select>
           </label>
         </div>

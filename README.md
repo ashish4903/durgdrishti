@@ -30,6 +30,13 @@ npm.cmd run preview
 
 ESLint checks the code for common mistakes, including React hook rules (`eslint.config.js`).
 
+Browser tests (`e2e/`) check the language menu and that no page scrolls sideways, at 320px, phone, tablet and desktop widths. They build the site and serve it themselves:
+
+```powershell
+npx.cmd playwright install chromium
+npm.cmd run test:e2e
+```
+
 The client bundle is written to `dist/`. No database or user authentication is needed. The optional AI photo feature uses the serverless function in `api/identify.js`; `npm run preview` serves only static files and does not emulate that function.
 
 ## Deployment

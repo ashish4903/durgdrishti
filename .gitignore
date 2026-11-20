@@ -5,3 +5,5 @@ dist/
 !.env.example
 .vite/
 .DS_Store
+test-results/
+playwright-report/

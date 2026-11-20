@@ -8,8 +8,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node --test src/data/*.test.js api/*.test.js",
-    "lint": "eslint ."
+    "test": "node --test src/*.test.js src/data/*.test.js api/*.test.js",
+    "lint": "eslint .",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "leaflet": "^1.9.4",
@@ -19,6 +20,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.1",
     "@vitejs/plugin-react": "^6.3.0",
     "eslint": "^10.13.0",
     "eslint-plugin-react-hooks": "^7.1.1",

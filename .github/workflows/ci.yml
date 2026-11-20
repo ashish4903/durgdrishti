@@ -27,3 +27,21 @@ jobs:
         run: npm test
       - name: Build site
         run: npm run build
+
+  e2e:
+    # Language menu and responsive layout, checked in Chromium at phone, tablet and desktop sizes.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run browser tests
+        run: npm run test:e2e
