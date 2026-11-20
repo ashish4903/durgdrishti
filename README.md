@@ -30,12 +30,37 @@ npm.cmd run preview
 
 ESLint checks the code for common mistakes, including React hook rules (`eslint.config.js`).
 
-Browser tests (`e2e/`) check the language menu and that no page scrolls sideways, at 320px, phone, tablet and desktop widths. They build the site and serve it themselves:
+Browser tests (`e2e/`) check the language menu, the page addresses (tabs, Back and Forward, shared links) and that no page scrolls sideways, at 320px, phone, tablet and desktop widths. They build the site and serve it themselves:
 
 ```powershell
 npx.cmd playwright install chromium
 npm.cmd run test:e2e
 ```
+
+## Page addresses
+
+Every page has its own address, so the browser's Back button, refreshing, bookmarks and shared links work. GitHub Pages serves only static files, so the addresses use the part after `#`:
+
+| Address | Page |
+| --- | --- |
+| `#/` | Home |
+| `#/explore` | Fort atlas |
+| `#/insights` | Choose a fort for insights |
+| `#/dashboard` | District overview |
+| `#/photo` | Photo field guide |
+| `#/fort/<catalogue id>` | One fort, e.g. `#/fort/directory-aad` |
+| `#/place/<map id>` | One mapped location, e.g. `#/place/rajgad` or `#/place/node/342119741` |
+
+An unknown fort opens the fort list, and any other unknown address opens Home.
+
+## Code layout
+
+- `src/App.jsx`: the page shell; picks the page for the current address
+- `src/pages/`: one component per page (home, atlas, fort)
+- `src/components/`: the pieces those pages are built from
+- `src/hooks/`: `useHashRoute` (address ↔ page), `useLanguage`, `useVisitorProfile`
+- `src/lib/`: plain functions with unit tests: routes, fort selection, the visitor profile, number and text formatting
+- `src/data/`: fort data, forecasts and translations
 
 The client bundle is written to `dist/`. No database or user authentication is needed. The optional AI photo feature uses the serverless function in `api/identify.js`; `npm run preview` serves only static files and does not emulate that function.
 

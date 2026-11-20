@@ -75,6 +75,7 @@ html:is([lang="mr"], [lang="hi"]) body * { letter-spacing: normal !important; }
 
 .tab-bar { height: 60px; display: flex; align-items: stretch; gap: 30px; border-bottom: 1px solid #29312b; }
 .tab { display: inline-flex; position: relative; align-items: center; gap: 9px; padding: 0 5px; border: 0; color: #87948a; background: none; font-size: 11px; cursor: pointer; }
+a.tab { text-decoration: none; }
 .tab.active { color: #e4e9e1; }
 .tab.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: var(--lime); }
 .tab.active svg { color: var(--lime); }
@@ -754,6 +755,7 @@ body { color: #173a32; background: linear-gradient(180deg, #e1f2e7 0, #f3f5ed 42
 .profile-heading { margin: 32px 0 19px; padding: 24px; border: 1px solid #c8dcd0; border-radius: 16px; background: linear-gradient(110deg, #e1f4e8, #fff8e9 74%); }
 .back-link { margin: 0 0 20px; padding: 0; border: 0; color: #14785c; background: transparent; font-size: 11px; font-weight: 650; cursor: pointer; }
 .back-link:hover { color: #995f1a; }
+a.back-link { display: inline-block; text-decoration: none; }
 .profile-header-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 16px; }
 .profile-action-primary, .profile-action-secondary { display: inline-flex; align-items: center; gap: 7px; padding: 9px 12px; border: 1px solid #168263; border-radius: 8px; color: #fff; background: #168263; text-decoration: none; font-size: 10px; font-weight: 650; }
 .profile-action-primary:hover { background: #0b6d54; }
